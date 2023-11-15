@@ -16,7 +16,7 @@ export const loginController = (req: Request, res: Response) => {
 }
 
 export const registerController = async (req: Request, res: Response) => {
-  const { email, password } = req.body
+  const { username, email, password, confirm_password, date_of_birth } = req.body
   // Thực hiện xử lý với dữ liệu
   try {
     const result = await userService.register({ email, password })

@@ -12,6 +12,10 @@ class UserService {
     )
     return result
   }
+  async checkEmailExist(email: string) {
+    const user = await databaseService.users.findOne({ email })
+    return Boolean(user)
+  }
 }
 
 const userService = new UserService()
