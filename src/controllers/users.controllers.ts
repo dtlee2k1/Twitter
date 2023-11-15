@@ -1,4 +1,6 @@
 import { Request, Response } from 'express'
+import { ParamsDictionary } from 'express-serve-static-core'
+import { UserReqBody } from '~/models/requests/User.requests'
 import userService from '~/services/users.services'
 
 // Controller có tác vụ xử lý logic kết quả trả về
@@ -15,11 +17,10 @@ export const loginController = (req: Request, res: Response) => {
   return res.status(400).json({ message: 'email or password incorrect' })
 }
 
-export const registerController = async (req: Request, res: Response) => {
-  const { username, email, password, confirm_password, date_of_birth } = req.body
+export const registerController = async (req: Request<ParamsDictionary, UserReqBody, any>, res: Response) => {
   // Thực hiện xử lý với dữ liệu
   try {
-    const result = await userService.register({ email, password })
+    const result = await userService.register(req.body)
     // Trả về phản hồi cho client
     res.json({
       message: 'Register successfully',
