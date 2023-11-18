@@ -1,77 +1,89 @@
-import { Request, Response, NextFunction } from 'express'
 import { checkSchema } from 'express-validator'
+import { UsersMessages } from '~/constants/enums'
 import userService from '~/services/users.services'
 import { validate } from '~/utils/validation'
 
-export const loginValidator = (req: Request, res: Response, next: NextFunction) => {
-  // Lấy dữ liệu từ phần thân của yêu cầu
-  const { email, password } = req.body
-  // Thực hiện xử lý với dữ liệu
-  if (!email || !password) {
-    // Trả về phản hồi cho client
-    return res.status(400).json({
-      error: 'Missing email or password'
-    })
-  }
+export const loginValidator = validate(
+  checkSchema({
+    email: {
+      trim: true,
+      isEmail: { bail: true, errorMessage: UsersMessages.EmailIsInvalid },
+      custom: {
+        options: async (value, { req }) => {
+          const user = await userService.checkUserExist({ email: value, password: req.body.password })
 
-  next()
-}
+          if (user === null) {
+            throw new Error(UsersMessages.EmailOrPasswordIsIncorrect)
+          }
+
+          // set user info vào request
+          req.user = user
+          return true
+        }
+      }
+    },
+    password: {
+      notEmpty: { bail: true, errorMessage: UsersMessages.PasswordIsRequired },
+      isString: { bail: true, errorMessage: UsersMessages.PasswordMustBeAString },
+      isLength: {
+        options: { min: 6, max: 50 },
+        bail: true,
+        errorMessage: UsersMessages.PasswordLengthRequired
+      },
+      trim: true
+    }
+  })
+)
 
 export const registerValidator = validate(
   checkSchema({
     username: {
-      notEmpty: true,
-      isString: true,
+      notEmpty: { bail: true, errorMessage: UsersMessages.NameIsRequired },
+      isString: { bail: true, errorMessage: UsersMessages.NameMustBeAString },
       isLength: {
         options: { max: 100, min: 1 }
       },
       trim: true
     },
     email: {
-      isEmail: true,
-      notEmpty: true,
+      notEmpty: { bail: true, errorMessage: UsersMessages.EmailIsRequired },
+      isEmail: { bail: true, errorMessage: UsersMessages.EmailIsInvalid },
       custom: {
         options: async (value) => {
           const isExistEmail = await userService.checkEmailExist(value)
           if (isExistEmail) {
-            throw new Error('Email already in use')
+            throw new Error(UsersMessages.EmailAlreadyExists)
           }
-
           return true
         }
       },
       trim: true
     },
     password: {
-      notEmpty: true,
-      isString: true,
+      notEmpty: { bail: true, errorMessage: UsersMessages.PasswordIsRequired },
+      isString: { bail: true, errorMessage: UsersMessages.PasswordMustBeAString },
       isLength: {
         options: { min: 6, max: 50 },
-        errorMessage: 'Password must be at least 6 characters long'
+        bail: true,
+        errorMessage: UsersMessages.PasswordLengthRequired
       },
       isStrongPassword: {
         options: { minLength: 6, minLowercase: 1, minUppercase: 1, minNumbers: 1, minSymbols: 1 },
-        errorMessage:
-          'Password must be at least 6 characters long and contain at least 1 lowercase letter, 1 uppercase letter, 1 number and 1 symbols'
+        errorMessage: UsersMessages.PasswordMustBeStrong
       },
       trim: true
     },
 
     confirm_password: {
-      notEmpty: true,
-      isString: true,
-      isLength: {
-        options: { min: 6, max: 50 },
-        errorMessage: 'Password must be at least 6 characters long'
-      },
+      notEmpty: { errorMessage: UsersMessages.ConfirmPasswordIsRequired },
+      isString: { errorMessage: UsersMessages.ConfirmPasswordMustBeAString },
       custom: {
         options: (value, { req }) => {
-          if (value !== req.body.confirm_password) {
-            throw new Error('Passwords do not match')
+          if (value !== req.body.password) {
+            throw new Error(UsersMessages.PasswordsDoNotMatch)
           }
           return true
-        },
-        bail: true
+        }
       }
     },
     date_of_birth: {
@@ -79,10 +91,9 @@ export const registerValidator = validate(
         options: {
           strict: true,
           strictSeparator: true
-        }
-      },
-      notEmpty: true,
-      trim: true
+        },
+        errorMessage: UsersMessages.DateOfBirthMustBeISO8601
+      }
     }
   })
 )
