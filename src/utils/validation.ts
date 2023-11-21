@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import { validationResult, ValidationChain, ResultFactory } from 'express-validator'
+import { validationResult, ValidationChain, Result, FieldValidationError } from 'express-validator'
 import { RunnableValidationChains } from 'express-validator/src/middlewares/schema'
 import { HttpStatusCode } from '~/constants/enums'
 import { EntityError, ErrorWithStatus } from '~/models/Errors'
@@ -12,7 +12,9 @@ export const validate = (validations: RunnableValidationChains<ValidationChain>)
     await validations.run(req)
 
     // Extracts the validation errors of an express request
-    const errors = validationResult(req)
+    const errors: Result<Pick<FieldValidationError, 'msg'>> = validationResult(req).formatWith((error) => ({
+      msg: error.msg
+    }))
 
     // Không có lỗi thì tiếp tục chạy next request
     if (errors.isEmpty()) {

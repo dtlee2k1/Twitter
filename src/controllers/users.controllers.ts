@@ -5,7 +5,8 @@ import { UsersMessages } from '~/constants/enums'
 import { UserReqBody } from '~/models/requests/User.requests'
 import userService from '~/services/users.services'
 
-// Controller có tác vụ xử lý logic kết quả trả về
+// Chứa các file nhận request, gọi đến service để xử lý logic nghiệp vụ, trả về response
+
 export const loginController = async (req: Request, res: Response) => {
   // Thực hiện xử lý với dữ liệu
   // Destructuring lấy ra user được set trong req ở middlewares
@@ -29,5 +30,12 @@ export const registerController = async (
   res.json({
     message: UsersMessages.RegisterSuccess,
     result
+  })
+}
+
+export const logoutController = async (req: Request, res: Response, next: NextFunction) => {
+  // Trả về phản hồi cho client
+  res.json({
+    message: UsersMessages.LogoutSuccess
   })
 }

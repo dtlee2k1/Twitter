@@ -8,6 +8,7 @@ import { TokenType } from '~/constants/enums'
 import { ObjectId } from 'mongodb'
 import RefreshToken from '~/models/schemas/ReFreshToken.schema'
 
+// Chứa các file chứa method gọi đến database để xử lý logic nghiệp vụ
 class UserService {
   private signAccessToken(user_id: string) {
     return signToken({
@@ -85,6 +86,10 @@ class UserService {
   async checkUserExist({ email, password }: { email: string; password: string }) {
     const user = await databaseService.users.findOne({ email, password: hashPassword(password) })
     return user
+  }
+
+  async checkAndDeleteRefreshTokenInDB(token: string) {
+    return databaseService.refreshTokens.findOneAndDelete({ token })
   }
 }
 

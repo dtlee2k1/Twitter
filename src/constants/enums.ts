@@ -95,5 +95,10 @@ export enum UsersMessages {
   PasswordsDoNotMatch = 'Passwords do not match',
   DateOfBirthMustBeISO8601 = 'Date of birth must be ISO 8601',
   LoginSuccess = 'Login success',
-  RegisterSuccess = 'Register success'
+  RegisterSuccess = 'Register success',
+  LogoutSuccess = 'Logout success',
+  AccessTokenIsRequired = 'Access token is required',
+  AccessTokenIsInvalid = 'Access token is invalid',
+  RefreshTokenIsInvalid = 'Refresh token is invalid',
+  UsedRefreshTokenOrNotExist = 'Used refresh token or not exist'
 }
