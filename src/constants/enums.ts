@@ -99,6 +99,11 @@ export enum UsersMessages {
   LogoutSuccess = 'Logout success',
   AccessTokenIsRequired = 'Access token is required',
   AccessTokenIsInvalid = 'Access token is invalid',
+  RefreshTokenIsRequired = 'Refresh token is required',
   RefreshTokenIsInvalid = 'Refresh token is invalid',
-  UsedRefreshTokenOrNotExist = 'Used refresh token or not exist'
+  UsedRefreshTokenOrNotExist = 'Used refresh token or not exist',
+  EmailVerifyTokenIsRequired = 'Email verify token is required',
+  UserNotFound = 'User not found',
+  EmailAlreadyVerifiedBefore = 'Email already verified before',
+  EmailVerifySuccess = 'Email verify success'
 }

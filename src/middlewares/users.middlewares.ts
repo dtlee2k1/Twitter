@@ -116,10 +116,7 @@ export const accessTokenValidator = validate(
   checkSchema(
     {
       Authorization: {
-        notEmpty: {
-          bail: true,
-          errorMessage: UsersMessages.AccessTokenIsRequired
-        },
+        trim: true,
         custom: {
           options: async (value: string, { req }) => {
             // lấy ra access token từ Headers được gửi đi khi user logout
@@ -132,7 +129,10 @@ export const accessTokenValidator = validate(
               })
             try {
               // decode access token trả về payload gửi lên khi login/register
-              const decodedAuthorization = await verifyToken({ token: access_token })
+              const decodedAuthorization = await verifyToken({
+                token: access_token,
+                secretOrPublicKey: process.env.JWT_SECRET_ACCESS_TOKEN as string
+              })
               ;(req as Request).decoded_authorization = decodedAuthorization
               return true
             } catch (error) {
@@ -152,16 +152,19 @@ export const accessTokenValidator = validate(
 export const refreshTokenValidator = validate(
   checkSchema({
     refresh_token: {
-      notEmpty: {
-        bail: true,
-        errorMessage: UsersMessages.AccessTokenIsRequired
-      },
+      trim: true,
       custom: {
         options: async (value, { req }) => {
+          // Kiểm tra refresh token có được gửi cùng request method POST hay chưa?
+          if (!value)
+            throw new ErrorWithStatus({
+              message: UsersMessages.RefreshTokenIsRequired,
+              status: HttpStatusCode.Unauthorized
+            })
           try {
             // Decoded refresh token được gửi từ client & kiểm tra tồn tại của refresh token đó trong database (Nếu true thì xóa luôn trong DB)
             const [decodedRefreshToken, refresh_token] = await Promise.all([
-              verifyToken({ token: value }),
+              verifyToken({ token: value, secretOrPublicKey: process.env.JWT_SECRET_REFRESH_TOKEN as string }),
               userService.checkAndDeleteRefreshTokenInDB(value)
             ])
 
@@ -175,6 +178,46 @@ export const refreshTokenValidator = validate(
 
             // set decoded refresh token vào req
             ;(req as Request).decoded_refresh_token = decodedRefreshToken
+
+            return true
+          } catch (error) {
+            // Lỗi truyền refresh token sai định dạng trả về bởi verifyToken
+            if (error instanceof JsonWebTokenError) {
+              throw new ErrorWithStatus({
+                message: capitalize(error.message),
+                status: HttpStatusCode.Unauthorized
+              })
+            }
+            throw error
+          }
+        }
+      }
+    }
+  })
+)
+
+export const emailVerifyTokenValidator = validate(
+  checkSchema({
+    email_verify_token: {
+      trim: true,
+      custom: {
+        options: async (value, { req }) => {
+          // Kiểm tra email verify token có được gửi cùng request method POST hay chưa?
+          if (!value)
+            throw new ErrorWithStatus({
+              message: UsersMessages.EmailVerifyTokenIsRequired,
+              status: HttpStatusCode.Unauthorized
+            })
+
+          try {
+            // Decoded email verify token được gửi từ client
+            const decodedEmailVerifyToken = await verifyToken({
+              token: value,
+              secretOrPublicKey: process.env.JWT_SECRET_EMAIL_VERIFY_TOKEN as string
+            })
+
+            // set decoded email verify token vào req
+            ;(req as Request).decoded_email_verify_token = decodedEmailVerifyToken
 
             return true
           } catch (error) {
