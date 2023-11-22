@@ -1,10 +1,10 @@
 import 'dotenv/config'
 import User from '~/models/schemas/User.schema'
 import databaseService from './database.services'
-import { UserReqBody } from '~/models/requests/User.requests'
+import { RegisterReqBody } from '~/models/requests/User.requests'
 import { hashPassword } from '~/utils/crypto'
 import { signToken } from '~/utils/jwt'
-import { TokenType, UserVerifyStatus } from '~/constants/enums'
+import { TokenType, UserVerifyStatus, UsersMessages } from '~/constants/enums'
 import { ObjectId } from 'mongodb'
 import RefreshToken from '~/models/schemas/ReFreshToken.schema'
 
@@ -53,7 +53,7 @@ class UserService {
     return Promise.all([this.signAccessToken(user_id), this.signRefreshToken(user_id)])
   }
 
-  async register(payload: UserReqBody) {
+  async register(payload: RegisterReqBody) {
     const user_id = new ObjectId()
 
     const email_verify_token = await this.signEmailVerifyToken(user_id.toString())
@@ -123,6 +123,28 @@ class UserService {
     return {
       access_token,
       refresh_token
+    }
+  }
+
+  async resendVerifyEmail(user_id: string) {
+    const email_verify_token = await this.signEmailVerifyToken(user_id)
+
+    // Resend email
+    console.log('Resend verify email token: ', email_verify_token)
+
+    // cập nhật lại value email_verify_token trong document users
+    databaseService.users.updateOne(
+      { _id: new ObjectId(user_id) },
+      {
+        $set: { email_verify_token },
+        $currentDate: {
+          updated_at: true
+        }
+      }
+    )
+
+    return {
+      message: UsersMessages.ResendVerificationEmailSuccess
     }
   }
 }

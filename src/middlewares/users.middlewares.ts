@@ -150,88 +150,94 @@ export const accessTokenValidator = validate(
 )
 
 export const refreshTokenValidator = validate(
-  checkSchema({
-    refresh_token: {
-      trim: true,
-      custom: {
-        options: async (value, { req }) => {
-          // Kiểm tra refresh token có được gửi cùng request method POST hay chưa?
-          if (!value)
-            throw new ErrorWithStatus({
-              message: UsersMessages.RefreshTokenIsRequired,
-              status: HttpStatusCode.Unauthorized
-            })
-          try {
-            // Decoded refresh token được gửi từ client & kiểm tra tồn tại của refresh token đó trong database (Nếu true thì xóa luôn trong DB)
-            const [decodedRefreshToken, refresh_token] = await Promise.all([
-              verifyToken({ token: value, secretOrPublicKey: process.env.JWT_SECRET_REFRESH_TOKEN as string }),
-              userService.checkAndDeleteRefreshTokenInDB(value)
-            ])
-
-            // Lỗi không tồn tại refresh token trong database
-            if (refresh_token === null) {
+  checkSchema(
+    {
+      refresh_token: {
+        trim: true,
+        custom: {
+          options: async (value, { req }) => {
+            // Kiểm tra refresh token có được gửi cùng request method POST hay chưa?
+            if (!value)
               throw new ErrorWithStatus({
-                message: UsersMessages.UsedRefreshTokenOrNotExist,
+                message: UsersMessages.RefreshTokenIsRequired,
                 status: HttpStatusCode.Unauthorized
               })
-            }
+            try {
+              // Decoded refresh token được gửi từ client & kiểm tra tồn tại của refresh token đó trong database (Nếu true thì xóa luôn trong DB)
+              const [decodedRefreshToken, refresh_token] = await Promise.all([
+                verifyToken({ token: value, secretOrPublicKey: process.env.JWT_SECRET_REFRESH_TOKEN as string }),
+                userService.checkAndDeleteRefreshTokenInDB(value)
+              ])
 
-            // set decoded refresh token vào req
-            ;(req as Request).decoded_refresh_token = decodedRefreshToken
+              // Lỗi không tồn tại refresh token trong database
+              if (refresh_token === null) {
+                throw new ErrorWithStatus({
+                  message: UsersMessages.UsedRefreshTokenOrNotExist,
+                  status: HttpStatusCode.Unauthorized
+                })
+              }
 
-            return true
-          } catch (error) {
-            // Lỗi truyền refresh token sai định dạng trả về bởi verifyToken
-            if (error instanceof JsonWebTokenError) {
-              throw new ErrorWithStatus({
-                message: capitalize(error.message),
-                status: HttpStatusCode.Unauthorized
-              })
+              // set decoded refresh token vào req
+              ;(req as Request).decoded_refresh_token = decodedRefreshToken
+
+              return true
+            } catch (error) {
+              // Lỗi truyền refresh token sai định dạng trả về bởi verifyToken
+              if (error instanceof JsonWebTokenError) {
+                throw new ErrorWithStatus({
+                  message: capitalize(error.message),
+                  status: HttpStatusCode.Unauthorized
+                })
+              }
+              throw error
             }
-            throw error
           }
         }
       }
-    }
-  })
+    },
+    ['body']
+  )
 )
 
 export const emailVerifyTokenValidator = validate(
-  checkSchema({
-    email_verify_token: {
-      trim: true,
-      custom: {
-        options: async (value, { req }) => {
-          // Kiểm tra email verify token có được gửi cùng request method POST hay chưa?
-          if (!value)
-            throw new ErrorWithStatus({
-              message: UsersMessages.EmailVerifyTokenIsRequired,
-              status: HttpStatusCode.Unauthorized
-            })
-
-          try {
-            // Decoded email verify token được gửi từ client
-            const decodedEmailVerifyToken = await verifyToken({
-              token: value,
-              secretOrPublicKey: process.env.JWT_SECRET_EMAIL_VERIFY_TOKEN as string
-            })
-
-            // set decoded email verify token vào req
-            ;(req as Request).decoded_email_verify_token = decodedEmailVerifyToken
-
-            return true
-          } catch (error) {
-            // Lỗi truyền refresh token sai định dạng trả về bởi verifyToken
-            if (error instanceof JsonWebTokenError) {
+  checkSchema(
+    {
+      email_verify_token: {
+        trim: true,
+        custom: {
+          options: async (value, { req }) => {
+            // Kiểm tra email verify token có được gửi cùng request method POST hay chưa?
+            if (!value)
               throw new ErrorWithStatus({
-                message: capitalize(error.message),
+                message: UsersMessages.EmailVerifyTokenIsRequired,
                 status: HttpStatusCode.Unauthorized
               })
+
+            try {
+              // Decoded email verify token được gửi từ client
+              const decodedEmailVerifyToken = await verifyToken({
+                token: value,
+                secretOrPublicKey: process.env.JWT_SECRET_EMAIL_VERIFY_TOKEN as string
+              })
+
+              // set decoded email verify token vào req
+              ;(req as Request).decoded_email_verify_token = decodedEmailVerifyToken
+
+              return true
+            } catch (error) {
+              // Lỗi truyền refresh token sai định dạng trả về bởi verifyToken
+              if (error instanceof JsonWebTokenError) {
+                throw new ErrorWithStatus({
+                  message: capitalize(error.message),
+                  status: HttpStatusCode.Unauthorized
+                })
+              }
+              throw error
             }
-            throw error
           }
         }
       }
-    }
-  })
+    },
+    ['body']
+  )
 )

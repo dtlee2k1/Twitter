@@ -105,5 +105,6 @@ export enum UsersMessages {
   EmailVerifyTokenIsRequired = 'Email verify token is required',
   UserNotFound = 'User not found',
   EmailAlreadyVerifiedBefore = 'Email already verified before',
-  EmailVerifySuccess = 'Email verify success'
+  EmailVerifySuccess = 'Email verify success',
+  ResendVerificationEmailSuccess = 'Resend verification email success'
 }
