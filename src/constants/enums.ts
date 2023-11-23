@@ -111,5 +111,6 @@ export enum UsersMessages {
   ForgotPasswordTokenIsRequired = 'Forgot password token is required',
   VerifyForgotPasswordSuccess = 'Verify forgot password successfully',
   ForgotPasswordTokenIsInvalid = 'Forgot password token is invalid',
-  ResetPasswordSuccess = 'Reset password successfully'
+  ResetPasswordSuccess = 'Reset password successfully',
+  GetMeSuccess = 'Get my profile successfully'
 }
