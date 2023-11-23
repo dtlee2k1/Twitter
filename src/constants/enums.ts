@@ -106,5 +106,10 @@ export enum UsersMessages {
   UserNotFound = 'User not found',
   EmailAlreadyVerifiedBefore = 'Email already verified before',
   EmailVerifySuccess = 'Email verify success',
-  ResendVerificationEmailSuccess = 'Resend verification email success'
+  ResendVerificationEmailSuccess = 'Resend verification email success',
+  CheckEmailToResetPassword = 'Check email to reset password',
+  ForgotPasswordTokenIsRequired = 'Forgot password token is required',
+  VerifyForgotPasswordSuccess = 'Verify forgot password successfully',
+  ForgotPasswordTokenIsInvalid = 'Forgot password token is invalid',
+  ResetPasswordSuccess = 'Reset password successfully'
 }

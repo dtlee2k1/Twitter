@@ -49,6 +49,19 @@ class UserService {
     })
   }
 
+  private signForgotPasswordToken(user_id: string) {
+    return signToken({
+      payload: {
+        user_id,
+        type: TokenType.ForgotPasswordToken
+      },
+      privateKey: process.env.JWT_SECRET_FORGOT_PASSWORD_TOKEN as string,
+      options: {
+        expiresIn: process.env.FORGOT_PASSWORD_TOKEN_EXP
+      }
+    })
+  }
+
   async signAccessAndRefreshToken(user_id: string) {
     return Promise.all([this.signAccessToken(user_id), this.signRefreshToken(user_id)])
   }
@@ -97,7 +110,7 @@ class UserService {
 
   async checkEmailExist(email: string) {
     const user = await databaseService.users.findOne({ email })
-    return Boolean(user)
+    return user
   }
 
   async checkUserExist({ email, password }: { email: string; password: string }) {
@@ -106,7 +119,7 @@ class UserService {
   }
 
   async checkAndDeleteRefreshTokenInDB(token: string) {
-    return databaseService.refreshTokens.findOneAndDelete({ token })
+    return await databaseService.refreshTokens.findOneAndDelete({ token })
   }
 
   async verifyEmail(user_id: string) {
@@ -129,11 +142,11 @@ class UserService {
   async resendVerifyEmail(user_id: string) {
     const email_verify_token = await this.signEmailVerifyToken(user_id)
 
-    // Resend email
+    // Thực hiện resend email tới user
     console.log('Resend verify email token: ', email_verify_token)
 
     // cập nhật lại value email_verify_token trong document users
-    databaseService.users.updateOne(
+    await databaseService.users.updateOne(
       { _id: new ObjectId(user_id) },
       {
         $set: { email_verify_token },
@@ -145,6 +158,33 @@ class UserService {
 
     return {
       message: UsersMessages.ResendVerificationEmailSuccess
+    }
+  }
+
+  async forgotPassword(user_id: string) {
+    const forgot_password_token = await this.signForgotPasswordToken(user_id)
+
+    // Cập nhật forgot password token trong document users
+    await databaseService.users.updateOne(
+      { _id: new ObjectId(user_id) },
+      { $set: { forgot_password_token, updated_at: new Date() } }
+    )
+
+    // Gửi email kèm đường link đến email user: https://twitter.com/forgot_password?token=token
+    console.log('Resend forgot password token: ', forgot_password_token)
+
+    return {
+      message: UsersMessages.CheckEmailToResetPassword
+    }
+  }
+
+  async resetPassword(user_id: string, password: string) {
+    await databaseService.users.updateOne(
+      { _id: new ObjectId(user_id) },
+      { $set: { forgot_password_token: '', password: hashPassword(password), updated_at: new Date() } }
+    )
+    return {
+      message: UsersMessages.ResetPasswordSuccess
     }
   }
 }
