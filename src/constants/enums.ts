@@ -112,5 +112,17 @@ export enum UsersMessages {
   VerifyForgotPasswordSuccess = 'Verify forgot password successfully',
   ForgotPasswordTokenIsInvalid = 'Forgot password token is invalid',
   ResetPasswordSuccess = 'Reset password successfully',
-  GetMeSuccess = 'Get my profile successfully'
+  GetMeSuccess = 'Get my profile successfully',
+  UpdateMeSuccess = 'Update my profile successfully',
+  UserNotVerified = 'User not verified',
+  BioMustBeAString = 'Bio must be a string',
+  BioLengthRequired = 'Bio length must be from 1 to 200 characters',
+  LocationMustBeAString = 'Location must be a string',
+  LocationLengthRequired = 'Location length must be from 1 to 200 characters',
+  WebsiteMustBeAString = 'Website must be a string',
+  WebsiteLengthRequired = 'Website length must be from 1 to 200 characters',
+  UsernameMustBeAString = 'Username must be a string',
+  UsernameLengthRequired = 'Username length must be from 1 to 50 characters',
+  ImageURLMustBeAString = 'Image URL must be a string',
+  ImageURLLengthRequired = 'Image URL length must be from 1 to 400 characters'
 }

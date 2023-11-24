@@ -1,6 +1,6 @@
-import { Request } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { ParamSchema, checkSchema } from 'express-validator'
-import { HttpStatusCode, UsersMessages } from '~/constants/enums'
+import { HttpStatusCode, UserVerifyStatus, UsersMessages } from '~/constants/enums'
 import { ErrorWithStatus } from '~/models/Errors'
 import userService from '~/services/users.services'
 import { verifyToken } from '~/utils/jwt'
@@ -9,8 +9,43 @@ import { JsonWebTokenError } from 'jsonwebtoken'
 import capitalize from 'lodash/capitalize'
 import databaseService from '~/services/database.services'
 import { ObjectId } from 'mongodb'
+import { TokenPayload } from '~/models/requests/User.requests'
 
 // Chứa các file chứa các hàm xử lý middleware, như validate, check token, ...
+
+const nameSchema: ParamSchema = {
+  notEmpty: { bail: true, errorMessage: UsersMessages.NameIsRequired },
+  isString: { bail: true, errorMessage: UsersMessages.NameMustBeAString },
+  trim: true,
+  isLength: {
+    options: { max: 100, min: 1 }
+  }
+}
+
+const dateOfBirthSchema: ParamSchema = {
+  isISO8601: {
+    options: {
+      strict: true,
+      strictSeparator: true
+    },
+    errorMessage: UsersMessages.DateOfBirthMustBeISO8601
+  }
+}
+
+const imageSchema: ParamSchema = {
+  optional: true,
+  isString: {
+    errorMessage: UsersMessages.ImageURLMustBeAString
+  },
+  trim: true,
+  isLength: {
+    options: {
+      min: 1,
+      max: 400
+    },
+    errorMessage: UsersMessages.ImageURLLengthRequired
+  }
+}
 
 const passwordSchema: ParamSchema = {
   notEmpty: { bail: true, errorMessage: UsersMessages.PasswordIsRequired },
@@ -124,14 +159,7 @@ export const loginValidator = validate(
 export const registerValidator = validate(
   checkSchema(
     {
-      username: {
-        notEmpty: { bail: true, errorMessage: UsersMessages.NameIsRequired },
-        isString: { bail: true, errorMessage: UsersMessages.NameMustBeAString },
-        isLength: {
-          options: { max: 100, min: 1 }
-        },
-        trim: true
-      },
+      name: nameSchema,
       email: {
         notEmpty: { bail: true, errorMessage: UsersMessages.EmailIsRequired },
         isEmail: { bail: true, errorMessage: UsersMessages.EmailIsInvalid },
@@ -149,15 +177,7 @@ export const registerValidator = validate(
       password: passwordSchema,
 
       confirm_password: confirmPasswordSchema,
-      date_of_birth: {
-        isISO8601: {
-          options: {
-            strict: true,
-            strictSeparator: true
-          },
-          errorMessage: UsersMessages.DateOfBirthMustBeISO8601
-        }
-      }
+      date_of_birth: dateOfBirthSchema
     },
     ['body']
   )
@@ -336,6 +356,89 @@ export const resetPasswordValidator = validate(
       confirm_password: confirmPasswordSchema
     },
 
+    ['body']
+  )
+)
+
+export const verifiedUserValidator = (req: Request, res: Response, next: NextFunction) => {
+  const { verify } = req.decoded_authorization as TokenPayload
+
+  if (verify !== UserVerifyStatus.Verified) {
+    return next(new ErrorWithStatus({ message: UsersMessages.UserNotVerified, status: HttpStatusCode.Forbidden }))
+  }
+  next()
+}
+
+export const updateMeValidator = validate(
+  checkSchema(
+    {
+      name: {
+        ...nameSchema,
+        optional: true
+      },
+      date_of_birth: {
+        ...dateOfBirthSchema,
+        optional: true
+      },
+      bio: {
+        optional: true,
+        isString: {
+          errorMessage: UsersMessages.BioMustBeAString
+        },
+        trim: true,
+        isLength: {
+          options: {
+            min: 1,
+            max: 200
+          },
+          errorMessage: UsersMessages.BioLengthRequired
+        }
+      },
+      location: {
+        optional: true,
+        isString: {
+          errorMessage: UsersMessages.LocationMustBeAString
+        },
+        trim: true,
+        isLength: {
+          options: {
+            min: 1,
+            max: 200
+          },
+          errorMessage: UsersMessages.LocationLengthRequired
+        }
+      },
+      website: {
+        optional: true,
+        isString: {
+          errorMessage: UsersMessages.WebsiteMustBeAString
+        },
+        trim: true,
+        isLength: {
+          options: {
+            min: 1,
+            max: 200
+          },
+          errorMessage: UsersMessages.WebsiteLengthRequired
+        }
+      },
+      username: {
+        optional: true,
+        isString: {
+          errorMessage: UsersMessages.UsernameMustBeAString
+        },
+        trim: true,
+        isLength: {
+          options: {
+            min: 1,
+            max: 50
+          },
+          errorMessage: UsersMessages.UsernameLengthRequired
+        }
+      },
+      avatar: imageSchema,
+      cover_photo: imageSchema
+    },
     ['body']
   )
 )

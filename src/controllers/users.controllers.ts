@@ -10,7 +10,8 @@ import {
   VerifyEmailReqBody,
   VerifyForgotPasswordReqBody,
   ForgotPasswordReqBody,
-  ResetPasswordReqBody
+  ResetPasswordReqBody,
+  UpdateMeReqBody
 } from '~/models/requests/User.requests'
 import User from '~/models/schemas/User.schema'
 import databaseService from '~/services/database.services'
@@ -21,8 +22,9 @@ import userService from '~/services/users.services'
 export const loginController = async (req: Request<ParamsDictionary, any, LoginReqBody>, res: Response) => {
   // Thực hiện xử lý với dữ liệu
   // Destructuring lấy ra user được set trong req ở middlewares
-  const user_id = req.user?._id as ObjectId
-  const result = await userService.login(user_id.toString())
+  const { _id: user_id, verify } = req.user as User
+
+  const result = await userService.login({ user_id: (user_id as ObjectId).toString(), verify })
   // Trả về phản hồi cho client
   res.json({
     message: UsersMessages.LoginSuccess,
@@ -102,9 +104,9 @@ export const forgotPasswordController = async (
   req: Request<ParamsDictionary, any, ForgotPasswordReqBody>,
   res: Response
 ) => {
-  const { _id } = req.user as User
+  const { _id, verify } = req.user as User
 
-  const result = await userService.forgotPassword((_id as ObjectId).toString())
+  const result = await userService.forgotPassword({ user_id: (_id as ObjectId).toString(), verify })
 
   res.json(result)
 }
@@ -132,10 +134,24 @@ export const resetPasswordController = async (
 }
 
 export const getMeController = async (req: Request<ParamsDictionary, any, ResetPasswordReqBody>, res: Response) => {
-  // Trả về phản hồi cho client
   const { user_id } = req.decoded_authorization as TokenPayload
 
+  // Get user profile from database
   const user = await userService.getMe(user_id)
+
+  // Trả về phản hồi cho client
+  res.json({
+    message: UsersMessages.GetMeSuccess,
+    result: user
+  })
+}
+
+export const updateMeController = async (req: Request<ParamsDictionary, any, UpdateMeReqBody>, res: Response) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const { body } = req
+
+  const user = await userService.updateMe(user_id, body)
+  // Trả về phản hồi cho client
   res.json({
     message: UsersMessages.GetMeSuccess,
     result: user
