@@ -11,7 +11,11 @@ import {
   VerifyForgotPasswordReqBody,
   ForgotPasswordReqBody,
   ResetPasswordReqBody,
-  UpdateMeReqBody
+  UpdateMeReqBody,
+  GetProfileReqParams,
+  FollowReqBody,
+  UnfollowReqParams,
+  ChangePasswordReqBody
 } from '~/models/requests/User.requests'
 import User from '~/models/schemas/User.schema'
 import databaseService from '~/services/database.services'
@@ -125,11 +129,24 @@ export const resetPasswordController = async (
   req: Request<ParamsDictionary, any, ResetPasswordReqBody>,
   res: Response
 ) => {
-  // Trả về phản hồi cho client
   const { user_id } = req.decoded_forgot_password_token as TokenPayload
   const { password } = req.body
 
   const result = await userService.resetPassword(user_id, password)
+
+  // Trả về phản hồi cho client
+  res.json(result)
+}
+
+export const changePasswordController = async (
+  req: Request<ParamsDictionary, any, ChangePasswordReqBody>,
+  res: Response
+) => {
+  // Trả về phản hồi cho client
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const { password } = req.body
+
+  const result = await userService.changePassword(user_id, password)
   res.json(result)
 }
 
@@ -156,4 +173,41 @@ export const updateMeController = async (req: Request<ParamsDictionary, any, Upd
     message: UsersMessages.GetMeSuccess,
     result: user
   })
+}
+
+export const getProfileController = async (req: Request<GetProfileReqParams>, res: Response) => {
+  const { username } = req.params
+  const user = await userService.getProfile(username)
+
+  // Trả về phản hồi cho client
+  res.json({
+    message: UsersMessages.GetProfileSuccess,
+    result: user
+  })
+}
+
+export const followController = async (req: Request<ParamsDictionary, any, FollowReqBody>, res: Response) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const { followed_user_id } = req.body
+
+  if (user_id === followed_user_id) {
+    return res.status(HttpStatusCode.Conflict).json({
+      message: UsersMessages.CannotFollowYourself
+    })
+  }
+
+  const result = await userService.follow(user_id, followed_user_id)
+
+  // Trả về phản hồi cho client
+  res.json(result)
+}
+
+export const unfollowController = async (req: Request<UnfollowReqParams>, res: Response) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const { user_id: followed_user_id } = req.params
+
+  const result = await userService.unfollow(user_id, followed_user_id)
+
+  // Trả về phản hồi cho client
+  res.json(result)
 }

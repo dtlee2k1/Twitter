@@ -9,7 +9,9 @@ import { JsonWebTokenError } from 'jsonwebtoken'
 import capitalize from 'lodash/capitalize'
 import databaseService from '~/services/database.services'
 import { ObjectId } from 'mongodb'
-import { TokenPayload } from '~/models/requests/User.requests'
+import { ChangePasswordReqBody, TokenPayload } from '~/models/requests/User.requests'
+import { REGEX_USERNAME } from '~/constants/regex'
+import { hashPassword } from '~/utils/crypto'
 
 // Chứa các file chứa các hàm xử lý middleware, như validate, check token, ...
 
@@ -60,6 +62,32 @@ const passwordSchema: ParamSchema = {
     errorMessage: UsersMessages.PasswordMustBeStrong
   },
   trim: true
+}
+
+const userIdSchema: ParamSchema = {
+  custom: {
+    options: async (value, { req }) => {
+      // Kiểm tra tính hợp lệ của _id gửi lên từ request
+      if (!ObjectId.isValid(value)) {
+        throw new ErrorWithStatus({
+          message: UsersMessages.InvalidUserId,
+          status: HttpStatusCode.NotFound
+        })
+      }
+
+      const followedUser = await databaseService.users.findOne({ _id: new ObjectId(value) })
+
+      // Kiểm tra sự tồn tại của user trong database
+      if (followedUser === null) {
+        throw new ErrorWithStatus({
+          message: UsersMessages.UserNotFound,
+          status: HttpStatusCode.NotFound
+        })
+      }
+
+      return true
+    }
+  }
 }
 
 const confirmPasswordSchema: ParamSchema = {
@@ -428,16 +456,87 @@ export const updateMeValidator = validate(
           errorMessage: UsersMessages.UsernameMustBeAString
         },
         trim: true,
-        isLength: {
-          options: {
-            min: 1,
-            max: 50
-          },
-          errorMessage: UsersMessages.UsernameLengthRequired
+        custom: {
+          options: async (value: string) => {
+            if (!REGEX_USERNAME.test(value)) {
+              throw new Error(UsersMessages.UsernameInvalid)
+            }
+
+            const user = await databaseService.users.findOne({ username: value })
+
+            // Check username phía user update có trùng với user khác trong DB
+            if (user) {
+              throw new Error(UsersMessages.UsernameAlreadyExists)
+            }
+            return true
+          }
         }
       },
       avatar: imageSchema,
       cover_photo: imageSchema
+    },
+    ['body']
+  )
+)
+
+export const followValidator = validate(
+  checkSchema(
+    {
+      followed_user_id: userIdSchema
+    },
+    ['body']
+  )
+)
+
+export const unfollowValidator = validate(
+  checkSchema(
+    {
+      user_id: userIdSchema
+    },
+    ['params']
+  )
+)
+
+export const changePasswordValidator = validate(
+  checkSchema(
+    {
+      old_password: {
+        notEmpty: { bail: true, errorMessage: UsersMessages.PasswordIsRequired },
+        custom: {
+          options: async (value: string, { req }) => {
+            const { user_id } = (req as Request).decoded_authorization as TokenPayload
+
+            const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) })
+
+            if (!user) {
+              throw new ErrorWithStatus({
+                message: UsersMessages.UserNotFound,
+                status: HttpStatusCode.NotFound
+              })
+            }
+
+            // Kiểm tra và so sánh old password truyền lên từ req vs trong DB có trùng khớp không
+            const { password } = user
+            const isMatch = password === hashPassword(value)
+
+            if (!isMatch) {
+              throw new ErrorWithStatus({
+                message: UsersMessages.PasswordIsIncorrect,
+                status: HttpStatusCode.Unauthorized
+              })
+            }
+
+            // New password không được giống old password
+            if (password === hashPassword((req.body as ChangePasswordReqBody).password)) {
+              throw new Error(UsersMessages.OldPasswordAndNewPasswordMustBeDifferent)
+            }
+
+            return true
+          }
+        }
+      },
+      password: passwordSchema,
+      confirm_password: confirmPasswordSchema
     },
     ['body']
   )

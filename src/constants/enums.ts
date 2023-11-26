@@ -93,6 +93,9 @@ export enum UsersMessages {
   ConfirmPasswordIsRequired = 'Confirm password is required',
   ConfirmPasswordMustBeAString = 'Confirm password must be a string',
   PasswordsDoNotMatch = 'Passwords do not match',
+  PasswordIsIncorrect = 'Password is incorrect',
+  OldPasswordAndNewPasswordMustBeDifferent = 'Old password and new password must be different',
+  ChangePasswordSuccess = 'Change password successfully',
   DateOfBirthMustBeISO8601 = 'Date of birth must be ISO 8601',
   LoginSuccess = 'Login success',
   RegisterSuccess = 'Register success',
@@ -113,6 +116,7 @@ export enum UsersMessages {
   ForgotPasswordTokenIsInvalid = 'Forgot password token is invalid',
   ResetPasswordSuccess = 'Reset password successfully',
   GetMeSuccess = 'Get my profile successfully',
+  GetProfileSuccess = 'Get profile successfully',
   UpdateMeSuccess = 'Update my profile successfully',
   UserNotVerified = 'User not verified',
   BioMustBeAString = 'Bio must be a string',
@@ -123,6 +127,14 @@ export enum UsersMessages {
   WebsiteLengthRequired = 'Website length must be from 1 to 200 characters',
   UsernameMustBeAString = 'Username must be a string',
   UsernameLengthRequired = 'Username length must be from 1 to 50 characters',
+  UsernameInvalid = 'Username length must be 4-15 characters and contains only letters, numbers, underscores and not only numbers',
+  UsernameAlreadyExists = 'Username already exists',
   ImageURLMustBeAString = 'Image URL must be a string',
-  ImageURLLengthRequired = 'Image URL length must be from 1 to 400 characters'
+  ImageURLLengthRequired = 'Image URL length must be from 1 to 400 characters',
+  FollowSuccess = 'Follow successfully',
+  UnfollowSuccess = 'Unfollow successfully',
+  InvalidUserId = 'Invalid user id',
+  AlreadyFollowed = 'Already followed',
+  AlreadyUnfollowed = 'Already unfollowed',
+  CannotFollowYourself = 'Cannot follow yourself'
 }

@@ -4,10 +4,12 @@ import databaseService from './database.services'
 import { RegisterReqBody, UpdateMeReqBody } from '~/models/requests/User.requests'
 import { hashPassword } from '~/utils/crypto'
 import { signToken } from '~/utils/jwt'
-import { TokenType, UserVerifyStatus, UsersMessages } from '~/constants/enums'
+import { HttpStatusCode, TokenType, UserVerifyStatus, UsersMessages } from '~/constants/enums'
 import { ObjectId } from 'mongodb'
 import RefreshToken from '~/models/schemas/ReFreshToken.schema'
 import omit from 'lodash/omit'
+import { ErrorWithStatus } from '~/models/Errors'
+import { Follower } from '~/models/schemas/Follower.schema'
 
 // Chứa các file chứa method gọi đến database để xử lý logic nghiệp vụ
 class UserService {
@@ -83,6 +85,7 @@ class UserService {
       new User({
         ...payload,
         _id: user_id,
+        username: `user_${user_id.toString()}`,
         email_verify_token,
         date_of_birth: new Date(payload.date_of_birth),
         password: hashPassword(payload.password)
@@ -147,6 +150,11 @@ class UserService {
 
     const [access_token, refresh_token] = token
 
+    // insert refresh token vào database sau khi verify thành công
+    await databaseService.refreshTokens.insertOne(
+      new RefreshToken({ user_id: new ObjectId(user_id), token: refresh_token })
+    )
+
     return {
       access_token,
       refresh_token
@@ -202,11 +210,46 @@ class UserService {
     }
   }
 
+  async changePassword(user_id: string, password: string) {
+    await databaseService.users.updateOne(
+      { _id: new ObjectId(user_id) },
+      { $set: { password: hashPassword(password), updated_at: new Date() } }
+    )
+    return {
+      message: UsersMessages.ChangePasswordSuccess
+    }
+  }
+
   async getMe(user_id: string) {
     const user = await databaseService.users.findOne(
       { _id: new ObjectId(user_id) },
       { projection: { password: 0, email_verify_token: 0, forgot_password_token: 0 } }
     )
+
+    return user
+  }
+
+  async getProfile(username: string) {
+    const user = await databaseService.users.findOne(
+      { username },
+      {
+        projection: {
+          password: 0,
+          email_verify_token: 0,
+          forgot_password_token: 0,
+          verify: 0,
+          created_at: 0,
+          updated_at: 0
+        }
+      }
+    )
+
+    if (user === null) {
+      throw new ErrorWithStatus({
+        message: UsersMessages.UserNotFound,
+        status: HttpStatusCode.NotFound
+      })
+    }
 
     return user
   }
@@ -235,7 +278,55 @@ class UserService {
         }
       }
     )
+
     return user
+  }
+
+  async follow(user_id: string, followed_user_id: string) {
+    const follower = await databaseService.followers.findOne({
+      user_id: new ObjectId(user_id),
+      followed_user_id: new ObjectId(followed_user_id)
+    })
+
+    if (follower === null) {
+      await databaseService.followers.insertOne(
+        new Follower({
+          user_id: new ObjectId(user_id),
+          followed_user_id: new ObjectId(followed_user_id)
+        })
+      )
+      return {
+        message: UsersMessages.FollowSuccess
+      }
+    }
+
+    return {
+      message: UsersMessages.AlreadyFollowed
+    }
+  }
+
+  async unfollow(user_id: string, followed_user_id: string) {
+    const follower = await databaseService.followers.findOne({
+      user_id: new ObjectId(user_id),
+      followed_user_id: new ObjectId(followed_user_id)
+    })
+
+    // Không tìm thấy follower => Chưa followed
+    if (follower === null) {
+      return {
+        message: UsersMessages.AlreadyUnfollowed
+      }
+    }
+
+    // TÌm thấy follower => Đã follow user này => Thực hiện xóa document này
+    await databaseService.followers.deleteOne({
+      user_id: new ObjectId(user_id),
+      followed_user_id: new ObjectId(followed_user_id)
+    })
+
+    return {
+      message: UsersMessages.UnfollowSuccess
+    }
   }
 }
 
