@@ -139,3 +139,7 @@ export enum UsersMessages {
   CannotFollowYourself = 'Cannot follow yourself',
   GoogleEmailNotVerified = 'Google email not verified'
 }
+
+export enum MediasMessages {
+  'UploadImageSuccess' = 'Uploading image successfully'
+}
