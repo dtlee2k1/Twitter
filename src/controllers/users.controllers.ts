@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ObjectId } from 'mongodb'
@@ -34,6 +35,19 @@ export const loginController = async (req: Request<ParamsDictionary, any, LoginR
     message: UsersMessages.LoginSuccess,
     result
   })
+}
+
+export const oauthController = async (req: Request, res: Response) => {
+  // Thực hiện xử lý với dữ liệu
+  // Nhận giá trị `code` thông qua query từ client-side và tiến hành gọi lên Google API để lấy thông tin `id_token` và `access_token`
+  const { code } = req.query
+
+  const result = await userService.oauth(code as string)
+
+  const urlRedirect = `${process.env.CLIENT_REDIRECT_CALLBACK}?access_token=${result.access_token}&refresh_token=${result.refresh_token}&new_user=${result.new_user}&verify=${result.verify}`
+
+  // Trả về phản hồi cho client
+  res.redirect(urlRedirect)
 }
 
 export const registerController = async (req: Request<ParamsDictionary, any, RegisterReqBody>, res: Response) => {

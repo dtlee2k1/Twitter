@@ -193,8 +193,8 @@ export const registerValidator = validate(
         isEmail: { bail: true, errorMessage: UsersMessages.EmailIsInvalid },
         custom: {
           options: async (value) => {
-            const isExistEmail = await userService.checkEmailExist(value)
-            if (isExistEmail) {
+            const isEmailExist = await userService.checkEmailExist(value)
+            if (isEmailExist) {
               throw new Error(UsersMessages.EmailAlreadyExists)
             }
             return true

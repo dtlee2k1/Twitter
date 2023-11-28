@@ -1,4 +1,5 @@
 import 'dotenv/config'
+import axios from 'axios'
 import User from '~/models/schemas/User.schema'
 import databaseService from './database.services'
 import { RegisterReqBody, UpdateMeReqBody } from '~/models/requests/User.requests'
@@ -69,8 +70,58 @@ class UserService {
     })
   }
 
-  async signAccessAndRefreshToken({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
+  private async signAccessAndRefreshToken({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
     return Promise.all([this.signAccessToken({ user_id, verify }), this.signRefreshToken({ user_id, verify })])
+  }
+
+  /**
+   * Hàm này thực hiện gửi yêu cầu lấy Google OAuth token dựa trên authorization code nhận được từ client-side.
+   * @param {string} code - Authorization code được gửi từ client-side.
+   * @returns {Object} - Đối tượng chứa Google OAuth token.
+   */
+  private async getOauthGoogleToken(code: string) {
+    const body = {
+      code,
+      client_id: process.env.GOOGLE_CLIENT_ID,
+      client_secret: process.env.GOOGLE_CLIENT_SECRET,
+      redirect_uri: process.env.GOOGLE_AUTHORIZED_REDIRECT_URI,
+      grant_type: 'authorization_code'
+    }
+    const { data } = await axios.post('https://oauth2.googleapis.com/token', body, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    })
+    return data as { access_token: string; id_token: string }
+  }
+
+  /**
+   * Hàm này thực hiện gửi yêu cầu lấy thông tin người dùng từ Google dựa trên Google OAuth token.
+   * @param {Object} tokens - Đối tượng chứa Google OAuth token.
+   * @param {string} tokens.id_token - ID token được lấy từ Google OAuth.
+   * @param {string} tokens.access_token - Access token được lấy từ Google OAuth.
+   * @returns {Object} - Đối tượng chứa thông tin người dùng từ Google.
+   */
+  private async getGoogleUserInfo({ id_token, access_token }: { id_token: string; access_token: string }) {
+    const { data } = await axios.get('https://www.googleapis.com/oauth2/v1/userinfo', {
+      params: {
+        access_token,
+        alt: 'json'
+      },
+      headers: {
+        Authorization: `Bearer ${id_token}`
+      }
+    })
+    return data as {
+      id: string
+      email: string
+      verified_email: boolean
+      name: string
+      given_name: string
+      family_name: string
+      picture: string
+      locale: string
+    }
   }
 
   async register(payload: RegisterReqBody) {
@@ -105,6 +156,57 @@ class UserService {
     return {
       access_token,
       refresh_token
+    }
+  }
+
+  async oauth(code: string) {
+    // Gửi authorization code để lấy Google OAuth
+    const data = await this.getOauthGoogleToken(code)
+
+    // Lấy ID token và access token từ kết quả trả về
+    const { id_token, access_token } = data
+
+    // Gửi Google OAuth token để lấy thông tin người dùng từ Google
+    const userInfo = await this.getGoogleUserInfo({ id_token, access_token })
+
+    // Kiểm tra email đã được xác minh từ Google
+    if (!userInfo.verified_email) {
+      throw new ErrorWithStatus({
+        message: UsersMessages.GoogleEmailNotVerified,
+        status: HttpStatusCode.Forbidden
+      })
+    }
+
+    // Kiểm tra email đã được đăng ký trong DB chưa
+    const user = await this.checkEmailExist(userInfo.email)
+
+    // Nếu tồn tại thì cho phép login, ngược lại không tồn tại trong DB thì tiến hành đăng ký mới
+    if (user) {
+      const [access_token, refresh_token] = await this.signAccessAndRefreshToken({
+        user_id: user._id.toString(),
+        verify: user.verify
+      })
+      // insert refresh token vào database sau khi login thành công
+      await databaseService.refreshTokens.insertOne(new RefreshToken({ user_id: user._id, token: refresh_token }))
+
+      return {
+        access_token,
+        refresh_token,
+        new_user: 0,
+        verify: user.verify
+      }
+    } else {
+      // generate random string password
+      const password = (Math.random() + 1).toString(36).substring(2)
+      const { access_token, refresh_token } = await this.register({
+        email: userInfo.email,
+        name: userInfo.name,
+        password,
+        confirm_password: password,
+        date_of_birth: new Date().toISOString()
+      })
+
+      return { access_token, refresh_token, new_user: 1, verify: UserVerifyStatus.Unverified }
     }
   }
 

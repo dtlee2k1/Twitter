@@ -13,7 +13,8 @@ import {
   getProfileController,
   followController,
   unfollowController,
-  changePasswordController
+  changePasswordController,
+  oauthController
 } from '~/controllers/users.controllers'
 import { filterMiddlewares } from '~/middlewares/common.middlewares'
 import {
@@ -45,6 +46,14 @@ const usersRouter = Router()
  *  Body: { email: string, password: string }
  */
 usersRouter.post('/login', loginValidator, wrapRequestHandler(loginController))
+
+/**
+ *  Description: Verify OAuth with Google
+ *  Path: '/oauth/google'
+ *  Method: GET
+ *  Query: { code: string }
+ */
+usersRouter.get('/oauth/google', wrapRequestHandler(oauthController))
 
 /**
  *  Description: Register a new user
@@ -177,7 +186,7 @@ usersRouter.post(
 )
 
 /**
- *  Description: Follow someone
+ *  Description: Unfollow someone
  *  Path: '/follow/:user_id'
  *  Method: DELETE
  *  Body: { followed_user_id }

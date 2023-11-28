@@ -136,5 +136,6 @@ export enum UsersMessages {
   InvalidUserId = 'Invalid user id',
   AlreadyFollowed = 'Already followed',
   AlreadyUnfollowed = 'Already unfollowed',
-  CannotFollowYourself = 'Cannot follow yourself'
+  CannotFollowYourself = 'Cannot follow yourself',
+  GoogleEmailNotVerified = 'Google email not verified'
 }

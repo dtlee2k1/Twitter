@@ -6,7 +6,7 @@ import { defaultErrorHandler } from './middlewares/error.middlewares'
 databaseService.connect()
 // Khởi tạo ứng dụng Express
 const app = express()
-const port = 3000
+const port = 4000
 
 // Sử dụng middleware để parse dữ liệu (`JSON` hoặc `URL-encoded forms`) từ phần thân của yêu cầu POST
 app.use(express.urlencoded({ extended: false }))
@@ -18,7 +18,7 @@ app.use('/users', usersRouter)
 // Khi app xuất hiện lỗi sẽ được xử lý lỗi tại Error handler này
 app.use(defaultErrorHandler)
 
-// Lắng nghe các yêu cầu đến cổng 3000
+// Lắng nghe các yêu cầu đến cổng 4000
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`)
 })
