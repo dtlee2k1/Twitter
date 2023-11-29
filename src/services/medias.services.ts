@@ -11,15 +11,15 @@ class MediaService {
 
     //  tạo file path mới dẫn tới folder uploads/images nếu xử lý ảnh thành công
     const newFilename = getNameFromFullName(file.newFilename)
-    const newPath = path.join(UPLOAD_DIR, `${newFilename}.jpg`)
+    const newPath = path.resolve(UPLOAD_DIR, `${newFilename}.jpg`)
 
     // Xử lý ảnh bằng sharp biến đổi image file upload sang định dạng jpeg
     await sharp(file.filepath).jpeg().toFile(newPath)
     // Xóa file path trong folder uploads/temp sau khi xử lý ảnh thành công
     fs.unlinkSync(file.filepath)
     return isProduction
-      ? `${process.env.HOST}/uploads/images/${newFilename}.jpg`
-      : `http://localhost:${process.env.PORT}/uploads/images/${newFilename}.jpg`
+      ? `${process.env.HOST}/static/image/${newFilename}.jpg`
+      : `http://localhost:${process.env.PORT}/static/image/${newFilename}.jpg`
   }
 }
 
