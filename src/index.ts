@@ -5,7 +5,7 @@ import { defaultErrorHandler } from './middlewares/error.middlewares'
 import usersRouter from './routes/users.routes'
 import mediasRouter from './routes/medias.routes'
 import { initFolder } from './utils/file'
-import { UPLOAD_DIR } from './constants/dir'
+import { UPLOAD_IMAGE_DIR } from './constants/dir'
 import staticRouter from './routes/static.routes'
 
 databaseService.connect()

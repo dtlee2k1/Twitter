@@ -147,6 +147,7 @@ export enum UsersMessages {
 
 export enum MediasMessages {
   'UploadImageSuccess' = 'Uploading image successfully',
+  'UploadVideoSuccess' = 'Uploading video successfully',
   'FileTypeIsNoValid' = 'File type is not valid',
   'FileIsEmpty' = 'File is empty'
 }
