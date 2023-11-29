@@ -11,6 +11,11 @@ export enum TokenType {
   EmailVerifyToken = 'email_verify_token'
 }
 
+export enum MediaType {
+  Image = 'image',
+  Video = 'video'
+}
+
 export enum HttpStatusCode {
   Continue = 100,
   SwitchingProtocols = 101,
