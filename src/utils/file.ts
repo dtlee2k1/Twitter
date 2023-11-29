@@ -1,46 +1,53 @@
-import path from 'path'
 import fs from 'fs'
 import { Request } from 'express'
-import formidable from 'formidable'
+import formidable, { File } from 'formidable'
+import { UPLOAD_DIR, UPLOAD_TEMP_DIR } from '~/constants/dir'
+import { MediasMessages } from '~/constants/enums'
 
 export const initFolder = () => {
-  const uploadFolderPath = path.resolve('uploads/images')
-
-  if (!fs.existsSync(uploadFolderPath)) {
-    // Nếu không tồn tại, tạo thư mục
-    fs.mkdirSync(uploadFolderPath, {
-      recursive: true // tạo folder nest
-    })
-  }
+  ;[UPLOAD_TEMP_DIR, UPLOAD_DIR].forEach((dir) => {
+    if (!fs.existsSync(dir)) {
+      // Nếu không tồn tại, tạo thư mục
+      fs.mkdirSync(dir, {
+        recursive: true // tạo nested folder
+      })
+    }
+  })
 }
 
 export const handleUploadSingleImage = async (req: Request) => {
   const form = formidable({
-    uploadDir: path.resolve('uploads/images'),
+    uploadDir: UPLOAD_TEMP_DIR,
     keepExtensions: true,
     maxFiles: 1,
-    maxFileSize: 300 * 1024, // 300 kB,
+    maxFileSize: 300 * 1024 * 1024, // 300 kB,
     filter: function ({ mimetype }) {
       // keep only images
       const valid = mimetype && mimetype.includes('image')
       if (!valid) {
-        form.emit('error' as any, new Error('File type is not valid') as any)
+        form.emit('error' as any, new Error(MediasMessages.FileTypeIsNoValid) as any)
+        return false
       }
       return true
     }
   })
 
-  return new Promise((resolve, reject) => {
+  return new Promise<File>((resolve, reject) => {
     form.parse(req, (err, fields, files) => {
       if (err) {
         return reject(err)
       }
 
       if (Object.keys(files).length === 0) {
-        return reject(new Error('File is empty'))
+        return reject(new Error(MediasMessages.FileIsEmpty))
       }
-
-      return resolve(files)
+      return resolve((files.image as File[])[0])
     })
   })
+}
+
+export const getNameFromFullName = (fullname: string) => {
+  const nameArr = fullname.split('.')
+
+  return nameArr[0]
 }

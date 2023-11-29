@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import express from 'express'
 import databaseService from './services/database.services'
 import { defaultErrorHandler } from './middlewares/error.middlewares'
@@ -8,7 +9,7 @@ import { initFolder } from './utils/file'
 databaseService.connect()
 // Khởi tạo ứng dụng Express
 const app = express()
-const port = 4000
+const port = process.env.PORT || 4000
 
 // Khởi tạo upload folder
 initFolder()

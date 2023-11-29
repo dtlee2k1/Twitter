@@ -8,7 +8,8 @@ const mediasRouter = Router()
  *  Description: upload a single image
  *  Path: '/upload-image'
  *  Method: POST
- *  Body: { email: string, password: string }
+ *  Header: 'Content-Type': 'multipart/form-data'
+ *  Body: FormData with `image` is key value
  */
 mediasRouter.post('/upload-image', wrapRequestHandler(uploadSingleImageController))
 
