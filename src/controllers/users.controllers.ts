@@ -16,7 +16,8 @@ import {
   GetProfileReqParams,
   FollowReqBody,
   UnfollowReqParams,
-  ChangePasswordReqBody
+  ChangePasswordReqBody,
+  refreshTokenReqBody
 } from '~/models/requests/User.requests'
 import User from '~/models/schemas/User.schema'
 import databaseService from '~/services/database.services'
@@ -64,6 +65,28 @@ export const logoutController = async (req: Request<ParamsDictionary, any, Logou
   // Trả về phản hồi cho client
   res.json({
     message: UsersMessages.LogoutSuccess
+  })
+}
+
+export const refreshTokenController = async (
+  req: Request<ParamsDictionary, any, refreshTokenReqBody>,
+  res: Response
+) => {
+  const { user_id, verify } = req.decoded_refresh_token as TokenPayload
+
+  const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) })
+
+  if (!user) {
+    return res.status(HttpStatusCode.NotFound).json({
+      message: UsersMessages.UserNotFound
+    })
+  }
+
+  const result = await userService.refreshToken({ user_id, verify })
+
+  res.json({
+    message: UsersMessages.RefreshTokenSuccess,
+    result
   })
 }
 

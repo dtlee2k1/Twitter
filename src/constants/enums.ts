@@ -110,6 +110,7 @@ export enum UsersMessages {
   RefreshTokenIsRequired = 'Refresh token is required',
   RefreshTokenIsInvalid = 'Refresh token is invalid',
   UsedRefreshTokenOrNotExist = 'Used refresh token or not exist',
+  RefreshTokenSuccess = 'Refresh token successfully',
   EmailVerifyTokenIsRequired = 'Email verify token is required',
   UserNotFound = 'User not found',
   EmailAlreadyVerifiedBefore = 'Email already verified before',

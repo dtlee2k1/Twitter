@@ -227,6 +227,20 @@ class UserService {
     }
   }
 
+  async refreshToken({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
+    const [access_token, refresh_token] = await this.signAccessAndRefreshToken({ user_id, verify })
+
+    // insert refresh token vào database sau khi sign new tokens thành công
+    await databaseService.refreshTokens.insertOne(
+      new RefreshToken({ user_id: new ObjectId(user_id), token: refresh_token })
+    )
+
+    return {
+      access_token,
+      refresh_token
+    }
+  }
+
   async checkEmailExist(email: string) {
     const user = await databaseService.users.findOne({ email })
     return user
