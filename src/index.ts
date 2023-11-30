@@ -5,7 +5,7 @@ import { defaultErrorHandler } from './middlewares/error.middlewares'
 import usersRouter from './routes/users.routes'
 import mediasRouter from './routes/medias.routes'
 import { initFolder } from './utils/file'
-import { UPLOAD_IMAGE_DIR } from './constants/dir'
+import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from './constants/dir'
 import staticRouter from './routes/static.routes'
 
 databaseService.connect()
@@ -27,6 +27,7 @@ app.use('/medias', mediasRouter)
 
 // Serving static files
 app.use('/static', staticRouter)
+app.use('/static/video', express.static(UPLOAD_VIDEO_DIR))
 
 // Khi app xuất hiện lỗi sẽ được xử lý lỗi tại Error handler này
 app.use(defaultErrorHandler)
