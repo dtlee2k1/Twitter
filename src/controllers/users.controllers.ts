@@ -72,7 +72,7 @@ export const refreshTokenController = async (
   req: Request<ParamsDictionary, any, refreshTokenReqBody>,
   res: Response
 ) => {
-  const { user_id, verify } = req.decoded_refresh_token as TokenPayload
+  const { user_id, verify, exp } = req.decoded_refresh_token as TokenPayload
 
   const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) })
 
@@ -82,7 +82,7 @@ export const refreshTokenController = async (
     })
   }
 
-  const result = await userService.refreshToken({ user_id, verify })
+  const result = await userService.refreshToken({ user_id, verify, exp })
 
   res.json({
     message: UsersMessages.RefreshTokenSuccess,
