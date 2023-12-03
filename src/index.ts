@@ -7,6 +7,7 @@ import mediasRouter from './routes/medias.routes'
 import { initFolder } from './utils/file'
 import { UPLOAD_VIDEO_DIR } from './constants/dir'
 import staticRouter from './routes/static.routes'
+import tweetsRouter from './routes/tweets.routes'
 
 databaseService.connect().then(() => {
   databaseService.indexUsers()
@@ -26,8 +27,10 @@ app.use(express.json())
 
 // Sử dụng routing trong usersRouter khi các yêu cầu được gửi đến đường dẫn "/users"
 app.use('/users', usersRouter)
-
+// Medias route
 app.use('/medias', mediasRouter)
+// Tweets route
+app.use('/tweets', tweetsRouter)
 
 // Serving static files
 app.use('/static', staticRouter)

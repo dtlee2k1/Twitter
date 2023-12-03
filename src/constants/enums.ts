@@ -16,6 +16,18 @@ export enum MediaType {
   Video = 'video'
 }
 
+export enum TweetAudience {
+  Everyone, // 0
+  TwitterCircle // 1
+}
+
+export enum TweetType {
+  Tweet,
+  Retweet,
+  Comment,
+  QuoteTweet
+}
+
 export enum HttpStatusCode {
   Continue = 100,
   SwitchingProtocols = 101,
