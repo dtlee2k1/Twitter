@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 import { ParamSchema, checkSchema } from 'express-validator'
-import { HttpStatusCode, UserVerifyStatus, UsersMessages } from '~/constants/enums'
+import { HttpStatusCode, UserVerifyStatus } from '~/constants/enums'
 import { ErrorWithStatus } from '~/models/Errors'
 import userService from '~/services/users.services'
 import { verifyToken } from '~/utils/jwt'
@@ -12,6 +12,7 @@ import { ObjectId } from 'mongodb'
 import { ChangePasswordReqBody, TokenPayload } from '~/models/requests/User.requests'
 import { REGEX_USERNAME } from '~/constants/regex'
 import { hashPassword } from '~/utils/crypto'
+import { UsersMessages } from '~/constants/messages'
 
 // Chứa các file chứa các hàm xử lý middleware, như validate, check token, ...
 

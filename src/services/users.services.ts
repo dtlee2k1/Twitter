@@ -5,12 +5,13 @@ import databaseService from './database.services'
 import { RegisterReqBody, UpdateMeReqBody } from '~/models/requests/User.requests'
 import { hashPassword } from '~/utils/crypto'
 import { signToken, verifyToken } from '~/utils/jwt'
-import { HttpStatusCode, TokenType, UserVerifyStatus, UsersMessages } from '~/constants/enums'
+import { HttpStatusCode, TokenType, UserVerifyStatus } from '~/constants/enums'
 import { ObjectId } from 'mongodb'
 import RefreshToken from '~/models/schemas/ReFreshToken.schema'
 import omit from 'lodash/omit'
 import { ErrorWithStatus } from '~/models/Errors'
 import { Follower } from '~/models/schemas/Follower.schema'
+import { UsersMessages } from '~/constants/messages'
 
 // Chứa các file chứa method gọi đến database để xử lý logic nghiệp vụ
 class UserService {

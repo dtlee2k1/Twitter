@@ -1,9 +1,10 @@
 import { NextFunction, Request, Response } from 'express'
 import path from 'path'
 import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from '~/constants/dir'
-import { HttpStatusCode, MediasMessages } from '~/constants/enums'
+import { HttpStatusCode } from '~/constants/enums'
 import mediaService from '~/services/medias.services'
 import fs from 'fs'
+import { MediasMessages } from '~/constants/messages'
 
 export const uploadImageController = async (req: Request, res: Response, next: NextFunction) => {
   const result = await mediaService.handleImageProcessing(req)

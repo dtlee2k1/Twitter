@@ -2,7 +2,8 @@ import 'dotenv/config'
 import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ObjectId } from 'mongodb'
-import { HttpStatusCode, UserVerifyStatus, UsersMessages } from '~/constants/enums'
+import { HttpStatusCode, UserVerifyStatus } from '~/constants/enums'
+import { UsersMessages } from '~/constants/messages'
 import {
   LoginReqBody,
   TokenPayload,

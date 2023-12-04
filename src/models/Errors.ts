@@ -1,4 +1,5 @@
-import { HttpStatusCode, UsersMessages } from '~/constants/enums'
+import { HttpStatusCode } from '~/constants/enums'
+import { UsersMessages } from '~/constants/messages'
 
 type ErrorsType = Record<
   string,

@@ -5,7 +5,7 @@ import { UPLOAD_IMAGE_DIR } from '~/constants/dir'
 import { getNameFromFullName, handleUploadImage, handleUploadVideo } from '~/utils/file'
 import fs from 'fs'
 import { isProduction } from '~/constants/config'
-import { Media } from '~/models/Others'
+import { Media } from '~/models/Other'
 import { MediaType } from '~/constants/enums'
 class MediaService {
   async handleImageProcessing(req: Request) {

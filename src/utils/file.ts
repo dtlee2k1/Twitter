@@ -2,7 +2,7 @@ import fs from 'fs'
 import { Request } from 'express'
 import formidable, { File } from 'formidable'
 import { UPLOAD_IMAGE_DIR, UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_DIR } from '~/constants/dir'
-import { MediasMessages } from '~/constants/enums'
+import { MediasMessages } from '~/constants/messages'
 
 export const initFolder = () => {
   ;[UPLOAD_IMAGE_DIR, UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_DIR].forEach((dir) => {
