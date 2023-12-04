@@ -80,5 +80,6 @@ export enum TweetsMessages {
   'ContentMustBeAnNonEmptyString' = 'Content must be an non empty string',
   'HashtagsMustBeAnArrayOfString' = 'Hashtags must be an array of string',
   'MentionsMustBeAnArrayOfUserId' = 'Mentions must be an array of user id',
-  'MediasMustBeAnArrayOfMediaObject' = 'Medias must be an array of media object'
+  'MediasMustBeAnArrayOfMediaObject' = 'Medias must be an array of media object',
+  'CreateTweetSuccess' = 'Create a new Tweet successfully'
 }
