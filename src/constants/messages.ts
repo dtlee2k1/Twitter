@@ -81,5 +81,17 @@ export enum TweetsMessages {
   'HashtagsMustBeAnArrayOfString' = 'Hashtags must be an array of string',
   'MentionsMustBeAnArrayOfUserId' = 'Mentions must be an array of user id',
   'MediasMustBeAnArrayOfMediaObject' = 'Medias must be an array of media object',
-  'CreateTweetSuccess' = 'Create a new Tweet successfully'
+  'CreateTweetSuccess' = 'Create a new Tweet successfully',
+  'InvalidTweetId' = 'invalid tweet_id',
+  'TweetNotFound' = 'Tweet not found'
+}
+
+export enum BookmarksMessages {
+  'BookmarkTweetSuccess' = 'Bookmark tweet successfully',
+  'UnbookmarkTweetSuccess' = 'Unbookmark tweet successfully'
+}
+
+export enum LikesMessages {
+  'LikeTweetSuccess' = 'Like tweet successfully',
+  'UnlikeTweetSuccess' = 'Unlike tweet successfully'
 }

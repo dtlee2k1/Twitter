@@ -8,11 +8,16 @@ import { initFolder } from './utils/file'
 import { UPLOAD_VIDEO_DIR } from './constants/dir'
 import staticRouter from './routes/static.routes'
 import tweetsRouter from './routes/tweets.routes'
+import bookmarksRouter from './routes/bookmarks.routes'
+import likesRouter from './routes/likes.routes'
 
 databaseService.connect().then(() => {
   databaseService.indexUsers()
   databaseService.indexRefreshTokens()
   databaseService.indexFollowers()
+  databaseService.indexHashtags()
+  databaseService.indexBookmarks()
+  databaseService.indexLikes()
 })
 // Khởi tạo ứng dụng Express
 const app = express()
@@ -31,6 +36,10 @@ app.use('/users', usersRouter)
 app.use('/medias', mediasRouter)
 // Tweets route
 app.use('/tweets', tweetsRouter)
+// Bookmarks route
+app.use('/bookmarks', bookmarksRouter)
+// Likes route
+app.use('/likes', likesRouter)
 
 // Serving static files
 app.use('/static', staticRouter)
