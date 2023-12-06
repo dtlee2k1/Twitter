@@ -4,6 +4,7 @@ import Tweet from '~/models/schemas/Tweet.schema'
 import { ObjectId, WithId } from 'mongodb'
 import { TweetsMessages } from '~/constants/messages'
 import { Hashtag } from '~/models/schemas/Hashtag.schema'
+import { result } from 'lodash'
 
 class TweetService {
   async checkAndCreateHashtag(hashtags: string[]) {
@@ -48,6 +49,13 @@ class TweetService {
     return {
       message: TweetsMessages.CreateTweetSuccess
     }
+  }
+
+  async getTweetDetail(tweet_id: string) {
+    const result = await databaseService.tweets.findOne({
+      _id: new ObjectId(tweet_id)
+    })
+    return result
   }
 }
 

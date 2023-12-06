@@ -1,3 +1,4 @@
+import { ParamsDictionary } from 'express-serve-static-core'
 import { TweetAudience, TweetType } from '~/constants/enums'
 import { Media } from '../Other'
 
@@ -9,4 +10,8 @@ export interface TweetRequestBody {
   hashtags: string[] //  hashtag name dạng ['javascript', 'reactJs']
   mentions: string[] // user_id[]
   medias: Media[]
+}
+
+export interface GetTweetDetailReqParams extends ParamsDictionary {
+  tweet_id: string
 }

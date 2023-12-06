@@ -82,8 +82,10 @@ export enum TweetsMessages {
   'MentionsMustBeAnArrayOfUserId' = 'Mentions must be an array of user id',
   'MediasMustBeAnArrayOfMediaObject' = 'Medias must be an array of media object',
   'CreateTweetSuccess' = 'Create a new Tweet successfully',
+  'GetTweetSuccess' = 'Get Tweet detail successfully',
   'InvalidTweetId' = 'invalid tweet_id',
-  'TweetNotFound' = 'Tweet not found'
+  'TweetNotFound' = 'Tweet not found',
+  'TweetIsNotPublic' = 'Tweet is not public'
 }
 
 export enum BookmarksMessages {
