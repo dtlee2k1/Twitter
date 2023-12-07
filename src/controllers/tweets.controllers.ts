@@ -17,11 +17,19 @@ export const createTweetController = async (req: Request<ParamsDictionary, any, 
 
 export const getTweetDetailController = async (req: Request<GetTweetDetailReqParams>, res: Response) => {
   const { tweet_id } = req.params
+  const { user_id } = req.decoded_authorization as TokenPayload
 
-  const result = await tweetService.getTweetDetail(tweet_id)
+  const result = await tweetService.increaseView(tweet_id, user_id)
+
+  const tweet = {
+    ...req.tweet,
+    user_views: result.user_views,
+    guest_views: result.guest_views
+  }
+
   // Trả về phản hồi cho client
   res.json({
     message: TweetsMessages.GetTweetSuccess,
-    result
+    result: tweet
   })
 }
