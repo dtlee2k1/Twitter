@@ -7,7 +7,7 @@ interface FollowerType {
   created_at?: Date
 }
 
-export class Follower {
+export default class Follower {
   _id?: ObjectId
   user_id: ObjectId
   followed_user_id: ObjectId

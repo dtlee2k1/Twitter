@@ -83,9 +83,12 @@ export enum TweetsMessages {
   'MediasMustBeAnArrayOfMediaObject' = 'Medias must be an array of media object',
   'CreateTweetSuccess' = 'Create a new Tweet successfully',
   'GetTweetSuccess' = 'Get Tweet detail successfully',
+  'GetTweetChildrenSuccess' = 'Get Tweet children successfully',
   'InvalidTweetId' = 'invalid tweet_id',
   'TweetNotFound' = 'Tweet not found',
-  'TweetIsNotPublic' = 'Tweet is not public'
+  'TweetIsNotPublic' = 'Tweet is not public',
+  'LimitRangeRequired' = 'Limit must be between 0 and 100',
+  'PageMinimumRequired' = 'Page must be at least 1'
 }
 
 export enum BookmarksMessages {

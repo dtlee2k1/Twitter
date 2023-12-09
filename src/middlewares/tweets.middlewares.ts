@@ -136,7 +136,7 @@ export const tweetIdValidator = validate(
               .aggregate<Tweet>([
                 {
                   $match: {
-                    _id: new ObjectId('6571f6ab86e0461c0f16dbc4')
+                    _id: new ObjectId(value)
                   }
                 },
                 {
@@ -209,7 +209,7 @@ export const tweetIdValidator = validate(
                           input: '$tweet_children',
                           as: 'tweet_child',
                           cond: {
-                            $eq: ['$$tweet_child.type', 1]
+                            $eq: ['$$tweet_child.type', TweetType.Retweet]
                           }
                         }
                       }
@@ -220,7 +220,7 @@ export const tweetIdValidator = validate(
                           input: '$tweet_children',
                           as: 'tweet_child',
                           cond: {
-                            $eq: ['$$tweet_child.type', 2]
+                            $eq: ['$$tweet_child.type', TweetType.Comment]
                           }
                         }
                       }
@@ -231,7 +231,7 @@ export const tweetIdValidator = validate(
                           input: '$tweet_children',
                           as: 'tweet_child',
                           cond: {
-                            $eq: ['$$tweet_child.type', 3]
+                            $eq: ['$$tweet_child.type', TweetType.QuoteTweet]
                           }
                         }
                       }
@@ -266,7 +266,7 @@ export const tweetIdValidator = validate(
 
 export const audienceValidator = async (req: Request, res: Response, next: NextFunction) => {
   const { audience, user_id: author_id } = req.tweet as Tweet
-  const { user_id: viewer_id } = req.decoded_authorization as TokenPayload
+  const viewer_id = (req.decoded_authorization as TokenPayload)?.user_id
 
   if (audience === TweetAudience.TwitterCircle) {
     // Kiểm tra viewer đã login hay chưa?
@@ -302,3 +302,41 @@ export const audienceValidator = async (req: Request, res: Response, next: NextF
 
   next()
 }
+
+export const getTweetChildrenValidator = validate(
+  checkSchema(
+    {
+      tweet_type: {
+        isIn: {
+          options: [tweetTypes],
+          errorMessage: TweetsMessages.InvalidType
+        }
+      },
+      limit: {
+        isNumeric: true,
+        custom: {
+          options: (value) => {
+            const num = Number(value)
+            if (num > 100 || num < 1) {
+              throw new Error(TweetsMessages.LimitRangeRequired)
+            }
+            return true
+          }
+        }
+      },
+      page: {
+        isNumeric: true,
+        custom: {
+          options: (value) => {
+            const num = Number(value)
+            if (num < 1) {
+              throw new Error(TweetsMessages.PageMinimumRequired)
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['query']
+  )
+)

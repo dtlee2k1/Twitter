@@ -10,7 +10,7 @@ import { ObjectId } from 'mongodb'
 import RefreshToken from '~/models/schemas/ReFreshToken.schema'
 import omit from 'lodash/omit'
 import { ErrorWithStatus } from '~/models/Errors'
-import { Follower } from '~/models/schemas/Follower.schema'
+import Follower from '~/models/schemas/Follower.schema'
 import { UsersMessages } from '~/constants/messages'
 
 // Chứa các file chứa method gọi đến database để xử lý logic nghiệp vụ
