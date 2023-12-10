@@ -84,6 +84,7 @@ export enum TweetsMessages {
   'CreateTweetSuccess' = 'Create a new Tweet successfully',
   'GetTweetSuccess' = 'Get Tweet detail successfully',
   'GetTweetChildrenSuccess' = 'Get Tweet children successfully',
+  'GetNewFeedsSuccess' = 'Get new feed successfully',
   'InvalidTweetId' = 'invalid tweet_id',
   'TweetNotFound' = 'Tweet not found',
   'TweetIsNotPublic' = 'Tweet is not public',

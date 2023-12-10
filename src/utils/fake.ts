@@ -16,7 +16,7 @@ const PASSWORD = 'T1nhy3ul4th3m4?'
 const MYID = new ObjectId('6574ae2c8adb1a251de9fc25')
 
 // Số lượng user được tạo, mỗi user sẽ mặc định tweet 2 cái
-const USER_COUNT = 400
+const USER_COUNT = 1000
 
 const createRandomUser = () => {
   const user: RegisterReqBody = {

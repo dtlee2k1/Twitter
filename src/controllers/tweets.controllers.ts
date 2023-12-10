@@ -3,9 +3,8 @@ import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { TweetType } from '~/constants/enums'
 import { TweetsMessages } from '~/constants/messages'
-import { TweetParams, TweetQuery, TweetRequestBody } from '~/models/requests/Tweet.requests'
+import { PaginationQuery, TweetParams, TweetQuery, TweetRequestBody } from '~/models/requests/Tweet.requests'
 import { TokenPayload } from '~/models/requests/User.requests'
-import Tweet from '~/models/schemas/Tweet.schema'
 import tweetService from '~/services/tweets.services'
 
 export const createTweetController = async (req: Request<ParamsDictionary, any, TweetRequestBody>, res: Response) => {
@@ -58,6 +57,28 @@ export const getTweetChildrenController = async (req: Request<TweetParams, any, 
     result: {
       tweets,
       tweet_type,
+      limit,
+      page,
+      total_pages: Math.ceil(tweetsCount / limit)
+    }
+  })
+}
+
+export const getNewFeedsController = async (
+  req: Request<ParamsDictionary, any, any, PaginationQuery>,
+  res: Response
+) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const limit = Number(req.query.limit)
+  const page = Number(req.query.page)
+
+  const { tweets, tweetsCount } = await tweetService.getNewFeeds({ user_id, limit, page })
+
+  // Trả về phản hồi cho client
+  res.json({
+    message: TweetsMessages.GetNewFeedsSuccess,
+    result: {
+      tweets,
       limit,
       page,
       total_pages: Math.ceil(tweetsCount / limit)
