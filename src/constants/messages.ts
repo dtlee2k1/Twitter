@@ -63,41 +63,48 @@ export enum UsersMessages {
 }
 
 export enum MediasMessages {
-  'UploadImageSuccess' = 'Uploading image successfully',
-  'UploadVideoSuccess' = 'Uploading video successfully',
-  'FileTypeIsNoValid' = 'File type is not valid',
-  'FileIsEmpty' = 'File is empty'
+  UploadImageSuccess = 'Uploading image successfully',
+  UploadVideoSuccess = 'Uploading video successfully',
+  FileTypeIsNoValid = 'File type is not valid',
+  FileIsEmpty = 'File is empty'
 }
 
 export enum TweetsMessages {
-  'TypeIsRequired' = 'Type is required',
-  'InvalidType' = 'Invalid type',
-  'AudienceIsRequired' = 'Audience is required',
-  'InvalidAudience' = 'Invalid audience',
-  'ParentIdMustBeAValidTweetId' = 'Parent id must be a valid tweet id',
-  'ParentIdMustBeNull' = 'Parent id must be null',
-  'ContentMustBeEmptyString' = 'Content must be empty string',
-  'ContentMustBeAnNonEmptyString' = 'Content must be an non empty string',
-  'HashtagsMustBeAnArrayOfString' = 'Hashtags must be an array of string',
-  'MentionsMustBeAnArrayOfUserId' = 'Mentions must be an array of user id',
-  'MediasMustBeAnArrayOfMediaObject' = 'Medias must be an array of media object',
-  'CreateTweetSuccess' = 'Create a new Tweet successfully',
-  'GetTweetSuccess' = 'Get Tweet detail successfully',
-  'GetTweetChildrenSuccess' = 'Get Tweet children successfully',
-  'GetNewFeedsSuccess' = 'Get new feed successfully',
-  'InvalidTweetId' = 'invalid tweet_id',
-  'TweetNotFound' = 'Tweet not found',
-  'TweetIsNotPublic' = 'Tweet is not public',
-  'LimitRangeRequired' = 'Limit must be between 0 and 100',
-  'PageMinimumRequired' = 'Page must be at least 1'
+  TypeIsRequired = 'Type is required',
+  InvalidType = 'Invalid type',
+  AudienceIsRequired = 'Audience is required',
+  InvalidAudience = 'Invalid audience',
+  ParentIdMustBeAValidTweetId = 'Parent id must be a valid tweet id',
+  ParentIdMustBeNull = 'Parent id must be null',
+  ContentMustBeEmptyString = 'Content must be empty string',
+  ContentMustBeAnNonEmptyString = 'Content must be an non empty string',
+  HashtagsMustBeAnArrayOfString = 'Hashtags must be an array of string',
+  MentionsMustBeAnArrayOfUserId = 'Mentions must be an array of user id',
+  MediasMustBeAnArrayOfMediaObject = 'Medias must be an array of media object',
+  CreateTweetSuccess = 'Create a new Tweet successfully',
+  GetTweetSuccess = 'Get Tweet detail successfully',
+  GetTweetChildrenSuccess = 'Get Tweet children successfully',
+  GetNewFeedsSuccess = 'Get new feed successfully',
+  InvalidTweetId = 'invalid tweet_id',
+  TweetNotFound = 'Tweet not found',
+  TweetIsNotPublic = 'Tweet is not public',
+  LimitRangeRequired = 'Limit must be between 0 and 100',
+  PageMinimumRequired = 'Page must be at least 1'
 }
 
 export enum BookmarksMessages {
-  'BookmarkTweetSuccess' = 'Bookmark tweet successfully',
-  'UnbookmarkTweetSuccess' = 'Unbookmark tweet successfully'
+  BookmarkTweetSuccess = 'Bookmark tweet successfully',
+  UnbookmarkTweetSuccess = 'Unbookmark tweet successfully'
 }
 
 export enum LikesMessages {
-  'LikeTweetSuccess' = 'Like tweet successfully',
-  'UnlikeTweetSuccess' = 'Unlike tweet successfully'
+  LikeTweetSuccess = 'Like tweet successfully',
+  UnlikeTweetSuccess = 'Unlike tweet successfully'
+}
+
+export enum SearchMessages {
+  SearchSuccess = 'Search successfully',
+  ContentMustBeString = 'Content must be a string',
+  MediaTypeRequired = 'Media type must be one of image or video',
+  PeopleFollowMustBeBoolean = 'People follow must be boolean'
 }

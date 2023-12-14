@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { BookmarksMessages } from '~/constants/messages'
-import { BookmarkTweetRequestBody } from '~/models/requests/Bookmark.request'
+import { BookmarkTweetRequestBody } from '~/models/requests/Bookmark.requests'
 import { TokenPayload } from '~/models/requests/User.requests'
 import bookmarkService from '~/services/bookmarks.service'
 

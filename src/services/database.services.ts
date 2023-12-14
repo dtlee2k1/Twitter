@@ -29,13 +29,8 @@ class DatabaseService {
 
   constructor() {
     // Create a MongoClient with a MongoClientOptions object to set the Stable API version
-    this.client = new MongoClient(uri, {
-      serverApi: {
-        version: ServerApiVersion.v1,
-        strict: true,
-        deprecationErrors: true
-      }
-    })
+    this.client = new MongoClient(uri)
+
     this.db = this.client.db(DB_NAME)
   }
 
@@ -99,6 +94,14 @@ class DatabaseService {
     if (exist) return
 
     this.likes.createIndex({ user_id: 1, tweet_id: 1 })
+  }
+
+  async indexTweets() {
+    const exist = await this.tweets.indexExists(['content_text'])
+
+    if (exist) return
+
+    this.tweets.createIndex({ content: 'text' }, { default_language: 'none' })
   }
 
   get users(): Collection<User> {

@@ -10,6 +10,7 @@ import staticRouter from './routes/static.routes'
 import tweetsRouter from './routes/tweets.routes'
 import bookmarksRouter from './routes/bookmarks.routes'
 import likesRouter from './routes/likes.routes'
+import searchRouter from './routes/search.routes'
 databaseService.connect().then(() => {
   databaseService.indexUsers()
   databaseService.indexRefreshTokens()
@@ -17,6 +18,7 @@ databaseService.connect().then(() => {
   databaseService.indexHashtags()
   databaseService.indexBookmarks()
   databaseService.indexLikes()
+  databaseService.indexTweets()
 })
 // Khởi tạo ứng dụng Express
 const app = express()
@@ -39,6 +41,8 @@ app.use('/tweets', tweetsRouter)
 app.use('/bookmarks', bookmarksRouter)
 // Likes route
 app.use('/likes', likesRouter)
+// Search route
+app.use('/search', searchRouter)
 
 // Serving static files
 app.use('/static', staticRouter)
