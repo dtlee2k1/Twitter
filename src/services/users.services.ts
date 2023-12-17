@@ -12,6 +12,7 @@ import omit from 'lodash/omit'
 import { ErrorWithStatus } from '~/models/Errors'
 import Follower from '~/models/schemas/Follower.schema'
 import { UsersMessages } from '~/constants/messages'
+import { sendForgotPasswordEmail, sendVerifyRegisterEmail } from '~/utils/email'
 
 // Chứa các file chứa method gọi đến database để xử lý logic nghiệp vụ
 class UserService {
@@ -178,6 +179,14 @@ class UserService {
       new RefreshToken({ user_id: new ObjectId(user_id), token: refresh_token, iat, exp })
     )
 
+    // Flow verify Email
+    // 1. Server send email to server
+    // 2. User click link in email
+    // 3. Client send email to server with email_verify_token
+    // 4. Server verify email_verify_token
+    // 5. Client receive access_token and refresh_token
+    await sendVerifyRegisterEmail(payload.email, email_verify_token)
+
     return {
       access_token,
       refresh_token
@@ -313,7 +322,7 @@ class UserService {
     }
   }
 
-  async resendVerifyEmail(user_id: string) {
+  async resendVerifyEmail(user_id: string, email: string) {
     const email_verify_token = await this.signEmailVerifyToken({ user_id, verify: UserVerifyStatus.Unverified })
 
     // Thực hiện resend email tới user
@@ -330,12 +339,14 @@ class UserService {
       }
     )
 
+    await sendVerifyRegisterEmail(email, email_verify_token)
+
     return {
       message: UsersMessages.ResendVerificationEmailSuccess
     }
   }
 
-  async forgotPassword({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
+  async forgotPassword({ user_id, verify, email }: { user_id: string; verify: UserVerifyStatus; email: string }) {
     const forgot_password_token = await this.signForgotPasswordToken({ user_id, verify })
 
     // Cập nhật forgot password token trong document users
@@ -346,6 +357,8 @@ class UserService {
 
     // Gửi email kèm đường link đến email user: https://twitter.com/forgot_password?token=token
     console.log('Resend forgot password token: ', forgot_password_token)
+
+    sendForgotPasswordEmail(email, forgot_password_token)
 
     return {
       message: UsersMessages.CheckEmailToResetPassword

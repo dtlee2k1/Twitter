@@ -1,5 +1,6 @@
 import 'dotenv/config'
 import express from 'express'
+import cors from 'cors'
 import databaseService from './services/database.services'
 import { defaultErrorHandler } from './middlewares/error.middlewares'
 import usersRouter from './routes/users.routes'
@@ -22,6 +23,7 @@ databaseService.connect().then(() => {
 })
 // Khởi tạo ứng dụng Express
 const app = express()
+app.use(cors())
 const port = process.env.PORT || 4000
 
 // Khởi tạo upload folder
