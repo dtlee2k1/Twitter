@@ -37,6 +37,7 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.474.0",
     "@aws-sdk/client-ses": "^3.474.0",
     "@faker-js/faker": "^8.3.1",
     "@types/cors": "^2.8.17",
