@@ -1,6 +1,8 @@
 import 'dotenv/config'
 import { S3 } from '@aws-sdk/client-s3'
-
+import { Upload } from '@aws-sdk/lib-storage'
+import fs from 'fs'
+import path from 'path'
 const s3 = new S3({
   region: process.env.AWS_REGION,
   credentials: {
@@ -9,4 +11,31 @@ const s3 = new S3({
   }
 })
 
-s3.listBuckets({}).then((data) => console.log(data))
+export const uploadFileToS3 = ({
+  filename,
+  filepath,
+  contentType
+}: {
+  filename: string
+  filepath: string
+  contentType: string
+}) => {
+  const parallelUploads3 = new Upload({
+    client: new S3({}),
+    params: {
+      Bucket: 'twitter-bucket-ap-southeast-1',
+      Key: filename,
+      Body: fs.readFileSync(filepath),
+      ContentType: contentType
+    },
+
+    tags: [
+      /*...*/
+    ], // optional tags
+    queueSize: 4, // optional concurrency configuration
+    partSize: 1024 * 1024 * 5, // optional size of each part, in bytes, at least 5MB
+    leavePartsOnError: false // optional manually handle dropped parts
+  })
+
+  return parallelUploads3.done()
+}
