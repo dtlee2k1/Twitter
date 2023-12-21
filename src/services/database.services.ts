@@ -7,6 +7,7 @@ import Tweet from '~/models/schemas/Tweet.schema'
 import Hashtag from '~/models/schemas/Hashtag.schema'
 import { Bookmark } from '~/models/schemas/Bookmark.schema'
 import { Like } from '~/models/schemas/Like.schema'
+import Conversation from '~/models/schemas/Conversation.schema'
 
 const {
   DB_NAME,
@@ -18,7 +19,8 @@ const {
   DB_TWEETS_COLLECTION,
   DB_HASHTAGS_COLLECTION,
   DB_BOOKMARKS_COLLECTION,
-  DB_LIKES_COLLECTION
+  DB_LIKES_COLLECTION,
+  DB_CONVERSATION_COLLECTION
 } = process.env
 
 const uri = `mongodb+srv://${DB_USERNAME}:${DB_PASSWORD}@twitter.7erkx9h.mongodb.net/?retryWrites=true&w=majority`
@@ -130,6 +132,10 @@ class DatabaseService {
 
   get likes(): Collection<Like> {
     return this.db.collection(DB_LIKES_COLLECTION as string)
+  }
+
+  get conversations(): Collection<Conversation> {
+    return this.db.collection(DB_CONVERSATION_COLLECTION as string)
   }
 }
 
