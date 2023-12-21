@@ -2,7 +2,7 @@ import 'dotenv/config'
 import { S3 } from '@aws-sdk/client-s3'
 import { Upload } from '@aws-sdk/lib-storage'
 import fs from 'fs'
-import path from 'path'
+
 const s3 = new S3({
   region: process.env.AWS_REGION,
   credentials: {
@@ -21,7 +21,7 @@ export const uploadFileToS3 = ({
   contentType: string
 }) => {
   const parallelUploads3 = new Upload({
-    client: new S3({}),
+    client: s3,
     params: {
       Bucket: process.env.S3_BUCKET_NAME as string,
       Key: filename,
