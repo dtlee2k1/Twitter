@@ -5,8 +5,8 @@ import { SearchQuery } from '~/models/requests/Search.requests'
 import searchService from '~/services/search.services'
 
 export const searchController = async (req: Request<ParamsDictionary, any, any, SearchQuery>, res: Response) => {
-  const page = Number(req.query.page)
-  const limit = Number(req.query.limit)
+  const page = Number(req.query.page) || 1
+  const limit = Number(req.query.limit) || 10
 
   const { tweets, tweetsCount } = await searchService.search({
     page,

@@ -304,7 +304,7 @@ class SearchService {
       tweet.user_views += 1
     })
 
-    return { tweets, tweetsCount: tweetsCount[0]?.total || 1 }
+    return { tweets, tweetsCount: tweetsCount[0]?.total || 0 }
   }
 }
 
