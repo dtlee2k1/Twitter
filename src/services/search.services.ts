@@ -116,7 +116,7 @@ class SearchService {
             $skip: limit * (page - 1)
           },
           {
-            $limit: 10
+            $limit: limit
           },
           {
             $lookup: {

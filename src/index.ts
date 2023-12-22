@@ -16,6 +16,8 @@ import likesRouter from './routes/likes.routes'
 import searchRouter from './routes/search.routes'
 import './utils/s3'
 import Conversation from './models/schemas/Conversation.schema'
+import conversationsRouter from './routes/conversations.routes'
+import { ObjectId } from 'mongodb'
 
 databaseService.connect().then(() => {
   databaseService.indexUsers()
@@ -52,6 +54,8 @@ app.use('/bookmarks', bookmarksRouter)
 app.use('/likes', likesRouter)
 // Search route
 app.use('/search', searchRouter)
+// Conversations route
+app.use('/conversations', conversationsRouter)
 
 // Serving static files
 app.use('/static', staticRouter)
@@ -87,8 +91,8 @@ io.on('connection', (socket) => {
 
     await databaseService.conversations.insertOne(
       new Conversation({
-        sender_id: data.from,
-        receiver_id: data.to,
+        sender_id: new ObjectId(data.from),
+        receiver_id: new ObjectId(data.to),
         content: data.content
       })
     )

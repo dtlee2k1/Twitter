@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { searchController } from '~/controllers/search.controller'
+import { searchController } from '~/controllers/search.controllers'
 import { searchValidator } from '~/middlewares/search.middlewares'
 import { paginationValidator } from '~/middlewares/tweets.middlewares'
 import { accessTokenValidator, isUserLoggedInValidator, verifiedUserValidator } from '~/middlewares/users.middlewares'

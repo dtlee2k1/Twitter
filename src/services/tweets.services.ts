@@ -208,7 +208,7 @@ class TweetService {
           $skip: limit * (page - 1)
         },
         {
-          $limit: 10
+          $limit: limit
         }
       ])
       .toArray()
@@ -321,7 +321,7 @@ class TweetService {
             $skip: limit * (page - 1)
           },
           {
-            $limit: 10
+            $limit: limit
           },
           {
             $lookup: {

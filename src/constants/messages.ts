@@ -108,3 +108,7 @@ export enum SearchMessages {
   MediaTypeRequired = 'Media type must be one of image or video',
   PeopleFollowMustBeBoolean = 'People follow must be boolean'
 }
+
+export enum ConversationsMessages {
+  GetConversationsSuccess = 'Get conversations successfully'
+}
