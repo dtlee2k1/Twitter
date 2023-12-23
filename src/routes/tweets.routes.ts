@@ -12,7 +12,7 @@ import {
   paginationValidator,
   tweetIdValidator
 } from '~/middlewares/tweets.middlewares'
-import { accessTokenValidator, isUserLoggedInValidator, verifiedUserValidator } from '~/middlewares/users.middlewares'
+import { accessTokenValidator, isUserLoggedInValidator, verifyUserValidator } from '~/middlewares/users.middlewares'
 import { wrapRequestHandler } from '~/utils/handlers'
 
 const tweetsRouter = Router()
@@ -27,7 +27,7 @@ const tweetsRouter = Router()
 tweetsRouter.post(
   '/',
   accessTokenValidator,
-  verifiedUserValidator,
+  verifyUserValidator,
   createTweetValidator,
   wrapRequestHandler(createTweetController)
 )
@@ -42,7 +42,7 @@ tweetsRouter.get(
   '/:tweet_id',
   tweetIdValidator,
   isUserLoggedInValidator(accessTokenValidator),
-  isUserLoggedInValidator(verifiedUserValidator),
+  isUserLoggedInValidator(verifyUserValidator),
   wrapRequestHandler(audienceValidator),
   wrapRequestHandler(getTweetDetailController)
 )
@@ -60,7 +60,7 @@ tweetsRouter.get(
   paginationValidator,
   getTweetChildrenValidator,
   isUserLoggedInValidator(accessTokenValidator),
-  isUserLoggedInValidator(verifiedUserValidator),
+  isUserLoggedInValidator(verifyUserValidator),
   wrapRequestHandler(audienceValidator),
   wrapRequestHandler(getTweetChildrenController)
 )
@@ -76,7 +76,7 @@ tweetsRouter.get(
   '/',
   paginationValidator,
   accessTokenValidator,
-  verifiedUserValidator,
+  verifyUserValidator,
   wrapRequestHandler(getNewFeedsController)
 )
 

@@ -13,6 +13,7 @@ import { ChangePasswordReqBody, TokenPayload } from '~/models/requests/User.requ
 import { REGEX_USERNAME } from '~/constants/regex'
 import { hashPassword } from '~/utils/crypto'
 import { UsersMessages } from '~/constants/messages'
+import { verifyAccessToken } from '~/utils/commons'
 
 // Chứa các file chứa các hàm xử lý middleware, như validate, check token, ...
 
@@ -221,26 +222,7 @@ export const accessTokenValidator = validate(
           options: async (value: string, { req }) => {
             // lấy ra access token từ Headers được gửi đi khi user logout
             const access_token = value.split(' ')[1]
-
-            if (!access_token)
-              throw new ErrorWithStatus({
-                message: UsersMessages.AccessTokenIsRequired,
-                status: HttpStatusCode.Unauthorized
-              })
-            try {
-              // decode access token trả về payload gửi lên khi login/register
-              const decodedAuthorization = await verifyToken({
-                token: access_token,
-                secretOrPublicKey: process.env.JWT_SECRET_ACCESS_TOKEN as string
-              })
-              ;(req as Request).decoded_authorization = decodedAuthorization
-              return true
-            } catch (error) {
-              throw new ErrorWithStatus({
-                message: capitalize((error as JsonWebTokenError).message),
-                status: HttpStatusCode.Unauthorized
-              })
-            }
+            return await verifyAccessToken(access_token, req as Request)
           }
         }
       }
@@ -389,7 +371,7 @@ export const resetPasswordValidator = validate(
   )
 )
 
-export const verifiedUserValidator = (req: Request, res: Response, next: NextFunction) => {
+export const verifyUserValidator = (req: Request, res: Response, next: NextFunction) => {
   const { verify } = req.decoded_authorization as TokenPayload
 
   if (verify !== UserVerifyStatus.Verified) {

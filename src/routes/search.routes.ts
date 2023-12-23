@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { searchController } from '~/controllers/search.controllers'
 import { searchValidator } from '~/middlewares/search.middlewares'
 import { paginationValidator } from '~/middlewares/tweets.middlewares'
-import { accessTokenValidator, isUserLoggedInValidator, verifiedUserValidator } from '~/middlewares/users.middlewares'
+import { accessTokenValidator, isUserLoggedInValidator, verifyUserValidator } from '~/middlewares/users.middlewares'
 import { wrapRequestHandler } from '~/utils/handlers'
 
 const searchRouter = Router()
@@ -16,7 +16,7 @@ const searchRouter = Router()
 searchRouter.get(
   '/',
   isUserLoggedInValidator(accessTokenValidator),
-  isUserLoggedInValidator(verifiedUserValidator),
+  isUserLoggedInValidator(verifyUserValidator),
   paginationValidator,
   searchValidator,
   wrapRequestHandler(searchController)

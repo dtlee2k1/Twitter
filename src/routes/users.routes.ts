@@ -30,7 +30,7 @@ import {
   resetPasswordValidator,
   unfollowValidator,
   updateMeValidator,
-  verifiedUserValidator,
+  verifyUserValidator,
   verifyForgotPasswordTokenValidator
 } from '~/middlewares/users.middlewares'
 import { UpdateMeReqBody } from '~/models/requests/User.requests'
@@ -135,7 +135,7 @@ usersRouter.post('/reset-password', resetPasswordValidator, wrapRequestHandler(r
 usersRouter.put(
   '/change-password',
   accessTokenValidator,
-  verifiedUserValidator,
+  verifyUserValidator,
   changePasswordValidator,
   wrapRequestHandler(changePasswordController)
 )
@@ -158,7 +158,7 @@ usersRouter.get('/me', accessTokenValidator, wrapRequestHandler(getMeController)
 usersRouter.patch(
   '/me',
   accessTokenValidator,
-  verifiedUserValidator,
+  verifyUserValidator,
   updateMeValidator,
   filterMiddlewares<UpdateMeReqBody>([
     'name',
@@ -189,7 +189,7 @@ usersRouter.get('/:username', wrapRequestHandler(getProfileController))
 usersRouter.post(
   '/follow',
   accessTokenValidator,
-  verifiedUserValidator,
+  verifyUserValidator,
   followValidator,
   wrapRequestHandler(followController)
 )
@@ -203,7 +203,7 @@ usersRouter.post(
 usersRouter.delete(
   '/follow/:user_id',
   accessTokenValidator,
-  verifiedUserValidator,
+  verifyUserValidator,
   unfollowValidator,
   wrapRequestHandler(unfollowController)
 )
