@@ -1,5 +1,6 @@
 import express from 'express'
-import cors from 'cors'
+import cors, { CorsOptions } from 'cors'
+import helmet from 'helmet'
 import fs from 'fs'
 import path from 'path'
 import { createServer } from 'http'
@@ -19,7 +20,7 @@ import conversationsRouter from './routes/conversations.routes'
 import { initSocket } from './utils/socket'
 import swaggerUi from 'swagger-ui-express'
 import YAML from 'yaml'
-import { envConfig } from './constants/config'
+import { envConfig, isProduction } from './constants/config'
 
 const file = fs.readFileSync(path.resolve('src/openapi/twitter-swagger.yaml'), 'utf8')
 const swaggerDocument = YAML.parse(file)
@@ -37,7 +38,12 @@ databaseService.connect().then(() => {
 const app = express()
 const httpServer = createServer(app)
 
-app.use(cors())
+const corsOptions: CorsOptions = {
+  origin: isProduction ? envConfig.clientUrl : '*'
+}
+
+app.use(cors(corsOptions))
+app.use(helmet())
 const port = envConfig.port
 
 // Khởi tạo upload folder
