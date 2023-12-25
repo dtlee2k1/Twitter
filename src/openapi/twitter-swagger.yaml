@@ -1,0 +1,155 @@
+openapi: 3.0.3
+info:
+  title: Swagger Twitter-Clone
+  contact:
+    email: leducthai2001@gmail.com
+  version: 1.0.0
+servers:
+  - url: http://localhost:4000
+tags:
+  - name: users
+    description: Everything about your Users
+
+paths:
+  /users/login:
+    post:
+      tags:
+        - users
+      summary: Login a user
+      description: Login to system by email and password
+      operationId: login
+      requestBody:
+        description: Login information
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginBody'
+        required: true
+      responses:
+        '200':
+          description: Login success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Login success
+                  result:
+                    $ref: '#/components/schemas/SuccessAuthentication'
+
+        '422':
+          description: Invalid input
+  /users/me:
+    get:
+      tags:
+        - users
+      summary: Get my profile
+      description: Get my profile by access_token in Headers
+      operationId: getMe
+      security:
+        - BearedAuth: []
+      responses:
+        '200':
+          description: Get my profile success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Get my profile successfully
+                  result:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Access token is required
+components:
+  schemas:
+    LoginBody:
+      type: object
+      properties:
+        email:
+          type: string
+          example: leducthai2k@gmail.com
+        password:
+          type: string
+          example: T1nhy3ul4th3m4?
+    SuccessAuthentication:
+      type: object
+      properties:
+        access_token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjU3ZjNhODhmZWEzZWIyZWI2Zjg2ZmFkIiwidHlwZSI6ImFjY2Vzc190b2tlbiIsInZlcmlmeSI6MSwiaWF0IjoxNzAzNDQ1ODMwLCJleHAiOjE3MDM1MzIyMzB9.0MKS1y18fek-cxYLgEWL4NSjb_BaUT9Vp6Wed7aR3uI
+        refresh_token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjU3ZjNhODhmZWEzZWIyZWI2Zjg2ZmFkIiwidHlwZSI6InJlZnJlc2hfdG9rZW4iLCJ2ZXJpZnkiOjEsImlhdCI6MTcwMzQ0NTgzMCwiZXhwIjoxNzM0OTgxODMwfQ.XgCpJBde5aMLllTesdT4K978eVu4Kr4yaKtUxmP7IPE
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: MongoId
+          example: 657f3a88fea3eb2eb6f86fad
+        name:
+          type: string
+          example: Duke Tyler
+        email:
+          type: string
+          example: duketyler@gmail.com
+        date_of_birth:
+          type: string
+          format: ISO8601
+          example: 2001-09-10T00:00:00.000Z
+        created_at:
+          type: string
+          format: ISO8601
+          example: 2023-12-17T18:14:32.906Z
+        updated_at:
+          type: string
+          format: ISO8601
+          example: 2023-12-17T18:14:32.906Z
+        verify:
+          $ref: '#/components/schemas/UserVerifyStatus'
+        twitter_circle:
+          type: array
+          items:
+            type: string
+            format: MongoId
+            example: ['65748b6e84c9680c9a7f41c6', '6570698bc6a6e9d4b146e7ed']
+        bio:
+          type: string
+          example: 'This is my bio'
+        location:
+          type: string
+          example: 'Hanoi, Vietnam'
+        website:
+          type: string
+          example: 'www.example.com'
+        username:
+          type: string
+          example: 'user_657f3a88fea3eb2eb6f86fad'
+        avatar:
+          type: string
+          example: 'http:localhost:4000/images/avatars/duketyler.jpg'
+        cover_photo:
+          type: string
+          example: 'http:localhost:4000/images/avatars/duketyler.jpg'
+    UserVerifyStatus:
+      type: number
+      enum: [Unverified, Verified, Banned]
+      example: 1
+  securitySchemes:
+    BearedAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

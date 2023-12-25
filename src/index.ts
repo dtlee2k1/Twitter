@@ -1,6 +1,8 @@
 import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
+import fs from 'fs'
+import path from 'path'
 import { createServer } from 'http'
 import databaseService from './services/database.services'
 import { defaultErrorHandler } from './middlewares/error.middlewares'
@@ -16,6 +18,11 @@ import searchRouter from './routes/search.routes'
 import './utils/s3'
 import conversationsRouter from './routes/conversations.routes'
 import { initSocket } from './utils/socket'
+import swaggerUi from 'swagger-ui-express'
+import YAML from 'yaml'
+
+const file = fs.readFileSync(path.resolve('src/openapi/twitter-swagger.yaml'), 'utf8')
+const swaggerDocument = YAML.parse(file)
 
 databaseService.connect().then(() => {
   databaseService.indexUsers()
@@ -39,7 +46,7 @@ initFolder()
 // Sử dụng middleware để parse dữ liệu (`JSON` hoặc `URL-encoded forms`) từ body của POST request
 app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
-
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 // Sử dụng routing trong usersRouter khi các yêu cầu được gửi đến đường dẫn "/users"
 app.use('/users', usersRouter)
 // Medias route

@@ -42,6 +42,8 @@
     "@aws-sdk/lib-storage": "^3.476.0",
     "@faker-js/faker": "^8.3.1",
     "@types/cors": "^2.8.17",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.6",
     "axios": "^1.6.2",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
@@ -54,7 +56,10 @@
     "minimist": "^1.2.8",
     "mongodb": "^6.2.0",
     "sharp": "^0.32.6",
-    "socket.io": "^4.7.2"
+    "socket.io": "^4.7.2",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0",
+    "yaml": "^2.3.4"
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.8",
