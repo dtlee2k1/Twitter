@@ -3,13 +3,16 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "engines": {
+    "node": ">=19.0.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "npx nodemon --env=development",
+    "dev": "npx nodemon",
     "dev:prod": "npx nodemon --env=production",
     "dev:stag": "npx nodemon --env=staging",
     "build": "rimraf ./dist && tsc && tsc-alias",
-    "start:dev": "node dist/index.js --env=development",
+    "start:dev": "node dist/index.js",
     "start:prod": "node dist/index.js --env=production",
     "start:stag": "node dist/index.js --env=staging",
     "lint": "eslint .",
@@ -52,6 +55,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
     "express-validator": "^7.0.1",
     "formidable": "^3.5.1",
     "helmet": "^7.1.0",

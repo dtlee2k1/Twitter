@@ -21,6 +21,7 @@ import { initSocket } from './utils/socket'
 import swaggerUi from 'swagger-ui-express'
 import YAML from 'yaml'
 import { envConfig, isProduction } from './constants/config'
+import { rateLimit } from 'express-rate-limit'
 
 const file = fs.readFileSync(path.resolve('src/openapi/twitter-swagger.yaml'), 'utf8')
 const swaggerDocument = YAML.parse(file)
@@ -41,9 +42,18 @@ const httpServer = createServer(app)
 const corsOptions: CorsOptions = {
   origin: isProduction ? envConfig.clientUrl : '*'
 }
-
 app.use(cors(corsOptions))
 app.use(helmet())
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+  standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+  legacyHeaders: false // Disable the `X-RateLimit-*` headers.
+  // store: ... , // Use an external store for consistency across multiple server instances.
+})
+app.use(limiter)
+
 const port = envConfig.port
 
 // Khởi tạo upload folder
