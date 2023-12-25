@@ -1,7 +1,7 @@
-import 'dotenv/config'
 import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ObjectId } from 'mongodb'
+import { envConfig } from '~/constants/config'
 import { HttpStatusCode, UserVerifyStatus } from '~/constants/enums'
 import { UsersMessages } from '~/constants/messages'
 import {
@@ -46,7 +46,7 @@ export const oauthController = async (req: Request, res: Response) => {
 
   const result = await userService.oauth(code as string)
 
-  const urlRedirect = `${process.env.CLIENT_REDIRECT_CALLBACK}?access_token=${result.access_token}&refresh_token=${result.refresh_token}&new_user=${result.new_user}&verify=${result.verify}`
+  const urlRedirect = `${envConfig.clientRedirectCallback}?access_token=${result.access_token}&refresh_token=${result.refresh_token}&new_user=${result.new_user}&verify=${result.verify}`
 
   // Trả về phản hồi cho client
   res.redirect(urlRedirect)

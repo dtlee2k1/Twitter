@@ -1,4 +1,3 @@
-import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import fs from 'fs'
@@ -20,6 +19,7 @@ import conversationsRouter from './routes/conversations.routes'
 import { initSocket } from './utils/socket'
 import swaggerUi from 'swagger-ui-express'
 import YAML from 'yaml'
+import { envConfig } from './constants/config'
 
 const file = fs.readFileSync(path.resolve('src/openapi/twitter-swagger.yaml'), 'utf8')
 const swaggerDocument = YAML.parse(file)
@@ -38,7 +38,7 @@ const app = express()
 const httpServer = createServer(app)
 
 app.use(cors())
-const port = process.env.PORT || 4000
+const port = envConfig.port
 
 // Khởi tạo upload folder
 initFolder()

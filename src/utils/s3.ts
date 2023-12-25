@@ -1,13 +1,13 @@
-import 'dotenv/config'
 import { S3 } from '@aws-sdk/client-s3'
 import { Upload } from '@aws-sdk/lib-storage'
 import fs from 'fs'
+import { envConfig } from '~/constants/config'
 
 const s3 = new S3({
-  region: process.env.AWS_REGION,
+  region: envConfig.awsRegion,
   credentials: {
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID as string
+    secretAccessKey: envConfig.awsSecretAccessKey,
+    accessKeyId: envConfig.awsAccessKeyId
   }
 })
 
@@ -23,7 +23,7 @@ export const uploadFileToS3 = ({
   const parallelUploads3 = new Upload({
     client: s3,
     params: {
-      Bucket: process.env.S3_BUCKET_NAME as string,
+      Bucket: envConfig.s3BucketName,
       Key: filename,
       Body: fs.readFileSync(filepath),
       ContentType: contentType

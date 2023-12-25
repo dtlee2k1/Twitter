@@ -14,6 +14,8 @@ import { REGEX_USERNAME } from '~/constants/regex'
 import { hashPassword } from '~/utils/crypto'
 import { UsersMessages } from '~/constants/messages'
 import { verifyAccessToken } from '~/utils/commons'
+import { env } from 'process'
+import { envConfig } from '~/constants/config'
 
 // Chứa các file chứa các hàm xử lý middleware, như validate, check token, ...
 
@@ -120,7 +122,7 @@ const forgotPasswordTokenSchema: ParamSchema = {
         // Decoded forgot password token được gửi từ client
         const decodedForgotPasswordToken = await verifyToken({
           token: value,
-          secretOrPublicKey: process.env.JWT_SECRET_FORGOT_PASSWORD_TOKEN as string
+          secretOrPublicKey: envConfig.jwtSecretForgotPasswordToken
         })
 
         // Destructuring payload của forgot password token
@@ -247,7 +249,7 @@ export const refreshTokenValidator = validate(
             try {
               // Decoded refresh token được gửi từ client & kiểm tra tồn tại của refresh token đó trong database (Nếu true thì xóa luôn trong DB)
               const [decodedRefreshToken, refresh_token] = await Promise.all([
-                verifyToken({ token: value, secretOrPublicKey: process.env.JWT_SECRET_REFRESH_TOKEN as string }),
+                verifyToken({ token: value, secretOrPublicKey: envConfig.jwtSecretRefreshToken }),
                 userService.checkAndDeleteRefreshTokenInDB(value)
               ])
 
@@ -299,7 +301,7 @@ export const emailVerifyTokenValidator = validate(
               // Decoded email verify token được gửi từ client
               const decodedEmailVerifyToken = await verifyToken({
                 token: value,
-                secretOrPublicKey: process.env.JWT_SECRET_EMAIL_VERIFY_TOKEN as string
+                secretOrPublicKey: envConfig.jwtSecretEmailVerifyToken
               })
 
               // set decoded email verify token vào req

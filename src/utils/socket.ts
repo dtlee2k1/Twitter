@@ -8,11 +8,12 @@ import { ErrorWithStatus } from '../models/Errors'
 import { UsersMessages } from '../constants/messages'
 import databaseService from '~/services/database.services'
 import { Server as HttpServer } from 'http'
+import { envConfig } from '~/constants/config'
 
 export const initSocket = (httpServer: HttpServer) => {
   const io = new Server(httpServer, {
     cors: {
-      origin: process.env.CLIENT_URL
+      origin: envConfig.clientUrl
     }
   })
 
