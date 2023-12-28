@@ -209,7 +209,7 @@ export const updateMeController = async (req: Request<ParamsDictionary, any, Upd
   const user = await userService.updateMe(user_id, body)
   // Trả về phản hồi cho client
   res.json({
-    message: UsersMessages.GetMeSuccess,
+    message: UsersMessages.UpdateMeSuccess,
     result: user
   })
 }
