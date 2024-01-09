@@ -7,6 +7,7 @@ import searchService from '~/services/search.services'
 export const searchController = async (req: Request<ParamsDictionary, any, any, SearchQuery>, res: Response) => {
   const page = Number(req.query.page) || 1
   const limit = Number(req.query.limit) || 10
+  const people_follow = JSON.parse(req.query.people_follow || 'false')
 
   const { tweets, tweetsCount } = await searchService.search({
     page,
@@ -14,7 +15,7 @@ export const searchController = async (req: Request<ParamsDictionary, any, any, 
     content: req.query.content,
     user_id: req.decoded_authorization?.user_id,
     media_type: req.query.media_type,
-    people_follow: JSON.parse(req.query.people_follow)
+    people_follow
   })
   res.json({
     message: SearchMessages.SearchSuccess,
