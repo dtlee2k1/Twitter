@@ -198,7 +198,7 @@ usersRouter.post(
  *  Description: Unfollow someone
  *  Path: '/follow/:user_id'
  *  Method: DELETE
- *  Body: { followed_user_id }
+ *  Params: { user_id }
  */
 usersRouter.delete(
   '/follow/:user_id',

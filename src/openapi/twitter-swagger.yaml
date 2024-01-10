@@ -21,8 +21,7 @@ tags:
     description: Operations about likes
   - name: search
     description: Operations about search
-  - name: conversations
-    description: Operations about conversations
+
 paths:
   /users/register:
     post:
@@ -332,7 +331,7 @@ paths:
         '401':
           description: Unauthorized
         '403':
-          description: Forbidden
+          description: User not verified
   /users/me:
     get:
       tags:
@@ -377,7 +376,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/UpdateMeBody'
-        required: false
+        required: true
       security:
         - BearedAuth: []
       responses:
@@ -391,6 +390,582 @@ paths:
                   message:
                     type: string
                     example: Update my profile successfully
+                  result:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Access token is required
+  /users/{username}:
+    get:
+      tags:
+        - users
+      summary: Get user by user name
+      description: ''
+      operationId: getUserByName
+      parameters:
+        - name: username
+          in: path
+          description: The username that needs to be fetched. Use `user_657f3a88fea3eb2eb6f86fad` for testing.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Get profile success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Get profile successfully
+                  result:
+                    $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+  /users/follow:
+    post:
+      tags:
+        - users
+      summary: Follow someone
+      description: ''
+      operationId: followSomeone
+      security:
+        - BearedAuth: []
+      requestBody:
+        description: Follow other user by username
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: user_6570698bc6a6e9d4b146e7ed
+        required: true
+      responses:
+        '200':
+          description: Follow success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Follow successfully
+        '409':
+          description: Cannot follow yourself
+  /users/follow/{username}:
+    delete:
+      tags:
+        - users
+      summary: Unfollow someone
+      description: ''
+      operationId: unfollowSomeone
+      security:
+        - BearedAuth: []
+      parameters:
+        - name: username
+          in: path
+          description: The username that needs to be executed. Use `user_6570698bc6a6e9d4b146e7ed` for testing.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Unfollow success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unfollow successfully
+        '404':
+          description: User not found
+  /medias/upload-image:
+    post:
+      tags:
+        - medias
+      summary: uploads an image
+      description: The image upload feature supports a maximum of 4 images with a size limit of 300kB per image
+      operationId: uploadImage
+      security:
+        - BearedAuth: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+        required: true
+      responses:
+        '200':
+          description: Upload image success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Uploading image successfully
+                  result:
+                    $ref: '#/components/schemas/Media'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server
+  /medias/upload-video:
+    post:
+      tags:
+        - medias
+      summary: uploads an video
+      description: The video upload feature supports a maximum of 1 video with a size limit of 50MB
+      operationId: uploadVideo
+      security:
+        - BearedAuth: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                video:
+                  type: string
+                  format: binary
+        required: true
+      responses:
+        '200':
+          description: Upload video success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Uploading video successfully
+                  result:
+                    $ref: '#/components/schemas/Media'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server
+  /bookmarks:
+    post:
+      tags:
+        - bookmarks
+      summary: bookmark a tweet
+      description: ''
+      operationId: bookmarkTweet
+      security:
+        - BearedAuth: []
+      requestBody:
+        description: bookmark a tweet by tweet_id. Use id `656e12b4bc033c2ea3a08482` for testing
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tweet_id:
+                  type: string
+                  example: 656e12b4bc033c2ea3a08482
+        required: true
+      responses:
+        '200':
+          description: Bookmark tweet success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Bookmark tweet successfully'
+                  result:
+                    $ref: '#/components/schemas/SuccessBookmark'
+        '400':
+          description: Invalid tweet_id
+        '401':
+          description: Unauthorized
+        '403':
+          description: User not verified
+        '404':
+          description: Tweet not found
+  /tweets:
+    post:
+      tags:
+        - tweets
+      summary: Create a tweet
+      description: |
+        Tweet information:
+
+        If `type` = 1 (`Retweet`), `content` must be empty string `""`, 
+
+        If `type` = 0,2,3 (`Tweet`, `Comment`, `QuoteTweet`) and has no `hashtags` and `mentions` then `content` cannot be an empty string
+
+        When `type` = 0 (`Tweet` or original tweet) then `parent_id` is `null`. Otherwise 
+        `parent_id` is the tweet_id of this tweet's parent tweet has type string
+
+      operationId: createTweet
+      security:
+        - BearedAuth: []
+      requestBody:
+        description: create Tweet information
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TweetRequestBody'
+        required: true
+      responses:
+        '200':
+          description: Create tweet success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Create a new Tweet successfully'
+        '401':
+          description: Unauthorized
+        '403':
+          description: User not verified
+        '422':
+          description: UnprocessableEntity
+    get:
+      tags:
+        - tweets
+      summary: Get new feeds
+      description: ''
+      operationId: getNewFeeds
+      security:
+        - BearedAuth: []
+      responses:
+        '200':
+          description: Get new feeds success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Get new feeds successfully
+                  result:
+                    $ref: '#/components/schemas/TweetChildren'
+        '401':
+          description: Access token is required
+        '403':
+          description: User not verified
+  /tweets/:tweet_id:
+    get:
+      tags:
+        - tweets
+      summary: Get tweet detail
+      description: ''
+      operationId: getTweetDetail
+      security:
+        - BearedAuth: []
+      parameters:
+        - name: tweet_id
+          in: path
+          description: The tweet_id that needs to be fetched. Use `6572034f86e0461c0f16dbd6` and `6571f6ab86e0461c0f16dbc4` and `6574afc333c806e510364424` for testing.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Get tweet detail success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Get Tweet detail successfully
+                  result:
+                    $ref: '#/components/schemas/TweetDetail'
+        '400':
+          description: Invalid tweet_id
+        '401':
+          description: Access token is required
+        '403':
+          description: Tweet is not public
+        '404':
+          description: Tweet not found
+  /tweets/:tweet_id/children:
+    get:
+      tags:
+        - tweets
+      summary: Get tweet children
+      description: ''
+      operationId: getTweetChildren
+      security:
+        - BearedAuth: []
+      parameters:
+        - name: tweet_id
+          in: path
+          description: The tweet_id that needs to be fetched. Use `6574afc333c806e510364424`, `6572034f86e0461c0f16dbd6` and `6571f6ab86e0461c0f16dbc4` for testing.
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Page values that need to be considered for filter
+          required: true
+          explode: true
+          schema:
+            type: number
+            default: 1
+        - name: limit
+          in: query
+          description: Limit values that need to be considered for filter
+          required: true
+          explode: true
+          schema:
+            type: number
+            default: 10
+        - name: tweet_type
+          in: query
+          description: |
+            Tweet_type values that need to be considered for filter
+
+            1: Retweet
+
+            2: Comment
+
+            3: QuoteTweet
+          required: true
+          explode: true
+          schema:
+            type: number
+            default: 2
+            enum:
+              - 1
+              - 2
+              - 3
+      responses:
+        '200':
+          description: Get tweet children success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Get Tweet children successfully
+                  result:
+                    $ref: '#/components/schemas/TweetChildren'
+        '400':
+          description: Invalid tweet_id
+        '401':
+          description: Access token is required
+        '403':
+          description: Tweet is not public
+        '404':
+          description: Tweet not found
+  /bookmarks/{tweet_id}:
+    delete:
+      tags:
+        - bookmarks
+      summary: Unbookmark a tweet
+      description: ''
+      operationId: unbookmarkTweet
+      security:
+        - BearedAuth: []
+      parameters:
+        - name: tweet_id
+          in: path
+          description: The tweet_id that needs to be executed. Use `656e12b4bc033c2ea3a08482` for testing.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Unbookmark tweet success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unbookmark tweet successfully
+        '400':
+          description: Invalid tweet_id
+        '401':
+          description: Unauthorized
+        '403':
+          description: User not verified
+        '404':
+          description: Tweet not found
+  /likes:
+    post:
+      tags:
+        - likes
+      summary: like a tweet
+      description: ''
+      operationId: likeTweet
+      security:
+        - BearedAuth: []
+      requestBody:
+        description: like a tweet by tweet_id. Use id `656e12b4bc033c2ea3a08482` for testing
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tweet_id:
+                  type: string
+                  example: 656e12b4bc033c2ea3a08482
+        required: true
+      responses:
+        '200':
+          description: Like tweet success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Like tweet successfully'
+                  result:
+                    $ref: '#/components/schemas/SuccessLike'
+        '400':
+          description: Invalid tweet_id
+        '401':
+          description: Unauthorized
+        '403':
+          description: User not verified
+        '404':
+          description: Tweet not found
+  /likes/{tweet_id}:
+    delete:
+      tags:
+        - likes
+      summary: Unlike a tweet
+      description: ''
+      operationId: unlikeTweet
+      security:
+        - BearedAuth: []
+      parameters:
+        - name: tweet_id
+          in: path
+          description: The tweet_id that needs to be executed. Use `656e12b4bc033c2ea3a08482` for testing.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Unlike tweet success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unlike tweet successfully
+        '400':
+          description: Invalid tweet_id
+        '401':
+          description: Unauthorized
+        '403':
+          description: User not verified
+        '404':
+          description: Tweet not found
+  /search:
+    get:
+      tags:
+        - search
+      summary: Search keywords
+      description: ''
+      operationId: getSearch
+      parameters:
+        - name: page
+          in: query
+          description: Page values that need to be considered for filter
+          required: true
+          explode: true
+          schema:
+            type: number
+            default: 1
+        - name: limit
+          in: query
+          description: Limit values that need to be considered for filter
+          required: true
+          explode: true
+          schema:
+            type: number
+            default: 10
+        - name: content
+          in: query
+          description: |
+            Content values that need to be considered for filter
+
+            Since content generated from lorem so please use some words below for testing
+
+            `hello`, `world`, `cruciamentum`, `patria`, `adamo aetas currus` and `Vergo appono alius argumentum`
+
+          required: true
+          explode: true
+          schema:
+            type: string
+            default: 'hello world'
+        - name: media_type
+          in: query
+          description: media_type values that need to be considered for filter
+          required: false
+          explode: true
+          schema:
+            type: string
+            enum:
+              - image
+              - video
+        - name: people_follow
+          in: query
+          description: |
+            people_follow values that need to be considered for filter
+
+            `false = Anyone` means user can search all tweets for everyone
+
+            `true = Following` means user can search tweets from people that user follows
+          required: false
+          explode: true
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Get my profile success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Get my profile successfully
                   result:
                     $ref: '#/components/schemas/User'
         '401':
@@ -481,10 +1056,39 @@ components:
           example: 'user_657f3a88fea3eb2eb6f86fad'
         avatar:
           type: string
-          example: 'http:localhost:4000/images/avatars/duketyler.jpg'
+          example: '117e651b8368b9ea85c311100.jpg'
         cover_photo:
           type: string
-          example: 'http:localhost:4000/images/avatars/duketyler.jpg'
+          example: '117e651b8368b9ea85c311100.jpg'
+    TweetRequestBody:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/TweetType'
+        audience:
+          $ref: '#/components/schemas/TweetAudience'
+        content:
+          type: string
+          example: this is an example for content of tweet
+        parent_id:
+          type: string
+          nullable: true
+          example: null
+        hashtags:
+          type: array
+          items:
+            type: string
+          example: ['NodeJS, JavaScript, ExpressJS']
+        mentions:
+          type: array
+          items:
+            type: string
+            format: MongoId
+            example: 65748b6e84c9680c9a7f41c6
+        medias:
+          type: array
+          items:
+            $ref: '#/components/schemas/Media'
     SuccessAuthentication:
       type: object
       properties:
@@ -494,6 +1098,38 @@ components:
         refresh_token:
           type: string
           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjU4ZTI1Y2JhNzZkYTQ5MzU4MTU5Njc3IiwidHlwZSI6InJlZnJlc2hfdG9rZW4iLCJ2ZXJpZnkiOjEsImlhdCI6MTcwMzgyMDY5NywiZXhwIjoxNzM1MzU2Njk3fQ.5zfWsqtjwhkDCivkhElOeBjBw4u3mHunCamzvrftP9k
+    SuccessBookmark:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 659f737863462bbcbb125929
+        tweet_id:
+          type: string
+          example: 656e12b4bc033c2ea3a08482
+        user_id:
+          type: string
+          example: 658e25cba76da49358159677
+        created_at:
+          type: string
+          format: ISO8601
+          example: 2024-01-11T04:50:00.040Z
+    SuccessLike:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 659f737863462bbcbb125929
+        tweet_id:
+          type: string
+          example: 656e12b4bc033c2ea3a08482
+        user_id:
+          type: string
+          example: 658e25cba76da49358159677
+        created_at:
+          type: string
+          format: ISO8601
+          example: 2024-01-11T04:50:00.040Z
     User:
       type: object
       properties:
@@ -541,14 +1177,149 @@ components:
           example: 'user_657f3a88fea3eb2eb6f86fad'
         avatar:
           type: string
-          example: 'http:localhost:4000/images/avatars/duketyler.jpg'
+          example: 'https://twitter-bucket-ap-southeast-1.s3.ap-southeast-1.amazonaws.com/images/117e651b8368b9ea85c311100.jpg'
         cover_photo:
           type: string
-          example: 'http:localhost:4000/images/avatars/duketyler.jpg'
+          example: 'https://twitter-bucket-ap-southeast-1.s3.ap-southeast-1.amazonaws.com/images/117e651b8368b9ea85c311100.jpg'
     UserVerifyStatus:
       type: number
       enum: [Unverified, Verified, Banned]
       example: 1
+    Media:
+      type: object
+      properties:
+        url:
+          type: string
+          example: https://twitter-bucket-ap-southeast-1.s3.ap-southeast-1.amazonaws.com/images/117e651b8368b9ea85c311100.jpg
+        type:
+          $ref: '#/components/schemas/MediaType'
+    MediaType:
+      type: number
+      enum: [Image, Video]
+      example: 0
+    TweetType:
+      type: number
+      enum: [Tweet, Retweet, Comment, QuoteTweet]
+      example: 0
+    TweetAudience:
+      type: number
+      enum: [Everyone, TwitterCircle]
+      example: 0
+    Hashtag:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: MongoId
+          example: 656e25ca5e021eca2c65f6a2
+        name:
+          type: string
+          example: javascript
+        created_at:
+          type: string
+          format: ISO8601
+          example: 2023-12-17T18:14:32.906Z
+    Mention:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: MongoId
+          example: 6571f64f86e0461c0f16dbbc
+        name:
+          type: string
+          example: Thai Lee
+        username:
+          type: string
+          example: user_6571f64f86e0461c0f16dbbc
+        email:
+          type: string
+          example: test2@gmail.com
+        twitter_circle:
+          type: string
+          format: MongoId
+          example: ['65748b6e84c9680c9a7f41c6', '6570698bc6a6e9d4b146e7ed']
+    TweetDetail:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: MongoId
+          example: 6574afc333c806e510364424
+        user_id:
+          type: string
+          example: 6574afb933c806e510362e3b
+        type:
+          $ref: '#/components/schemas/TweetType'
+        audience:
+          $ref: '#/components/schemas/TweetAudience'
+        content:
+          type: string
+          example: tweet content
+        parent_id:
+          type: string
+          nullable: true
+          example: null
+        medias:
+          type: array
+          items:
+            $ref: '#/components/schemas/Media'
+        guest_views:
+          type: number
+          example: 0
+        user_views:
+          type: number
+          example: 12
+        created_at:
+          type: string
+          format: ISO8601
+          example: 2023-12-17T18:14:32.906Z
+        updated_at:
+          type: string
+          format: ISO8601
+          example: 2023-12-17T18:14:32.906Z
+        hashtags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Hashtag'
+        mentions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Mention'
+        bookmarks:
+          type: number
+          example: 12
+        likes:
+          type: number
+          example: 11
+        retweet_count:
+          type: number
+          example: 3
+        comment_count:
+          type: number
+          example: 4
+        quote_count:
+          type: number
+          example: 5
+    TweetChildren:
+      type: object
+      properties:
+        tweets:
+          type: array
+          items:
+            $ref: '#/components/schemas/TweetDetail'
+        tweet_type:
+          type: number
+          example: 2
+        limit:
+          type: number
+          example: 10
+        page:
+          type: number
+          example: 1
+        total_pages:
+          type: number
+          example: 40
   securitySchemes:
     BearedAuth:
       type: http

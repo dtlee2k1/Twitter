@@ -99,7 +99,7 @@ class SearchService {
                       $or: [
                         {
                           'user_info.twitter_circle': {
-                            $in: [userIdObj]
+                            $in: [followedUserIds]
                           }
                         },
                         {
