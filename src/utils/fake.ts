@@ -10,12 +10,10 @@ import User from '~/models/schemas/User.schema'
 import databaseService from '~/services/database.services'
 import { hashPassword } from '~/utils/crypto'
 
-// Mật khẩu cho các fake user
 const PASSWORD = 'Test123!'
 // ID tài khoản default dùng để follow người khác
 const MYID = new ObjectId('658e25cba76da49358159677')
 
-// Số lượng user được tạo, mỗi user sẽ mặc định tweet 2 cái
 const USER_COUNT = 1000
 
 const createRandomUser = () => {
@@ -93,7 +91,6 @@ const followMultipleUsers = async (user_id: ObjectId, followed_user_ids: ObjectI
 const checkAndCreateHashtags = async (hashtags: string[]) => {
   const hashtagDocuments = await Promise.all(
     hashtags.map((hashtag) => {
-      // Tìm hashtag trong database, nếu có thì lấy, không thì tạo mới
       return databaseService.hashtags.findOneAndUpdate(
         { name: hashtag },
         {

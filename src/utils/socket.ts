@@ -35,7 +35,6 @@ export const initSocket = (httpServer: HttpServer) => {
         throw new ErrorWithStatus({ message: UsersMessages.UserNotVerified, status: HttpStatusCode.Forbidden })
       }
 
-      // Truyền decoded_authorization vào socket để sử dụng ở các middleware khác
       socket.handshake.auth.decoded_authorization = decoded_authorization
       socket.handshake.auth.access_token = access_token
       next()

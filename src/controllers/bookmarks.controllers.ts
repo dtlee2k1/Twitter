@@ -13,7 +13,6 @@ export const bookmarkTweetController = async (
 
   const result = await bookmarkService.bookmarkTweet(user_id, req.body.tweet_id)
 
-  // Trả về phản hồi cho client
   res.json({
     message: BookmarksMessages.BookmarkTweetSuccess,
     result
@@ -25,6 +24,5 @@ export const unbookmarkTweetController = async (req: Request, res: Response) => 
 
   const result = await bookmarkService.unbookmarkTweet(user_id, req.params.tweet_id)
 
-  // Trả về phản hồi cho client
   res.json(result)
 }

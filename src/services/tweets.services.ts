@@ -11,7 +11,6 @@ class TweetService {
   async checkAndCreateHashtag(hashtags: string[]) {
     const hashtagsDocument = await Promise.all(
       hashtags.map(async (hashtag) => {
-        // Tìm trong DB, nếu có thì lấy còn ko thì tạo mới
         const result = await databaseService.hashtags.findOneAndUpdate(
           { name: hashtag },
           {

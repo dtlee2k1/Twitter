@@ -10,7 +10,6 @@ export const likeTweetController = async (req: Request<ParamsDictionary, any, Li
 
   const result = await likeService.likeTweet(user_id, req.body.tweet_id)
 
-  // Trả về phản hồi cho client
   res.json({
     message: LikesMessages.LikeTweetSuccess,
     result
@@ -22,6 +21,5 @@ export const unlikeTweetController = async (req: Request, res: Response) => {
 
   const result = await likeService.unlikeTweet(user_id, req.params.tweet_id)
 
-  // Trả về phản hồi cho client
   res.json(result)
 }

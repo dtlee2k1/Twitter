@@ -21,7 +21,6 @@ export const getConversationsController = async (
     limit
   })
 
-  // Trả về phản hồi cho client
   res.json({
     message: ConversationsMessages.GetConversationsSuccess,
     result: {

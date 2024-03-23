@@ -22,7 +22,6 @@ class MediaService {
         // Xử lý ảnh bằng sharp biến đổi image file upload sang định dạng jpeg
         await sharp(file.filepath).jpeg().toFile(newPath)
 
-        // upload image file to S3
         const s3Result = await uploadFileToS3({
           filename: 'images/' + newFullFilename,
           filepath: newPath,

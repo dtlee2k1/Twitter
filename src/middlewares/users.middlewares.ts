@@ -16,8 +16,6 @@ import { UsersMessages } from '~/constants/messages'
 import { verifyAccessToken } from '~/utils/commons'
 import { envConfig } from '~/constants/config'
 
-// Chứa các file chứa các hàm xử lý middleware, như validate, check token, ...
-
 const nameSchema: ParamSchema = {
   notEmpty: { bail: true, errorMessage: UsersMessages.NameIsRequired },
   isString: { bail: true, errorMessage: UsersMessages.NameMustBeAString },
@@ -70,7 +68,6 @@ const passwordSchema: ParamSchema = {
 const userIdSchema: ParamSchema = {
   custom: {
     options: async (value, { req }) => {
-      // Kiểm tra tính hợp lệ của _id gửi lên từ request
       if (!ObjectId.isValid(value)) {
         throw new ErrorWithStatus({
           message: UsersMessages.InvalidUserId,
@@ -80,7 +77,6 @@ const userIdSchema: ParamSchema = {
 
       const followedUser = await databaseService.users.findOne({ _id: new ObjectId(value) })
 
-      // Kiểm tra sự tồn tại của user trong database
       if (followedUser === null) {
         throw new ErrorWithStatus({
           message: UsersMessages.UserNotFound,
@@ -110,7 +106,6 @@ const forgotPasswordTokenSchema: ParamSchema = {
   trim: true,
   custom: {
     options: async (value, { req }) => {
-      // Kiểm tra forgot password token có được gửi cùng request method POST hay chưa?
       if (!value)
         throw new ErrorWithStatus({
           message: UsersMessages.ForgotPasswordTokenIsRequired,
@@ -118,13 +113,11 @@ const forgotPasswordTokenSchema: ParamSchema = {
         })
 
       try {
-        // Decoded forgot password token được gửi từ client
         const decodedForgotPasswordToken = await verifyToken({
           token: value,
           secretOrPublicKey: envConfig.jwtSecretForgotPasswordToken
         })
 
-        // Destructuring payload của forgot password token
         const { user_id } = decodedForgotPasswordToken
 
         const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) })
@@ -174,7 +167,6 @@ export const loginValidator = validate(
               throw new Error(UsersMessages.EmailOrPasswordIsIncorrect)
             }
 
-            // set user info vào request
             ;(req as Request).user = user
             return true
           }
@@ -221,7 +213,6 @@ export const accessTokenValidator = validate(
         trim: true,
         custom: {
           options: async (value: string, { req }) => {
-            // lấy ra access token từ Headers được gửi đi khi user logout
             const access_token = value.split(' ')[1]
             return await verifyAccessToken(access_token, req as Request)
           }
@@ -246,13 +237,11 @@ export const refreshTokenValidator = validate(
                 status: HttpStatusCode.Unauthorized
               })
             try {
-              // Decoded refresh token được gửi từ client & kiểm tra tồn tại của refresh token đó trong database (Nếu true thì xóa luôn trong DB)
               const [decodedRefreshToken, refresh_token] = await Promise.all([
                 verifyToken({ token: value, secretOrPublicKey: envConfig.jwtSecretRefreshToken }),
                 userService.checkAndDeleteRefreshTokenInDB(value)
               ])
 
-              // Lỗi không tồn tại refresh token trong database
               if (refresh_token === null) {
                 throw new ErrorWithStatus({
                   message: UsersMessages.UsedRefreshTokenOrNotExist,
@@ -260,12 +249,10 @@ export const refreshTokenValidator = validate(
                 })
               }
 
-              // set decoded refresh token vào req
               ;(req as Request).decoded_refresh_token = decodedRefreshToken
 
               return true
             } catch (error) {
-              // Lỗi truyền refresh token sai định dạng trả về bởi verifyToken
               if (error instanceof JsonWebTokenError) {
                 throw new ErrorWithStatus({
                   message: capitalize(error.message),
@@ -289,7 +276,6 @@ export const emailVerifyTokenValidator = validate(
         trim: true,
         custom: {
           options: async (value, { req }) => {
-            // Kiểm tra email verify token có được gửi cùng request method POST hay chưa?
             if (!value)
               throw new ErrorWithStatus({
                 message: UsersMessages.EmailVerifyTokenIsRequired,
@@ -297,13 +283,11 @@ export const emailVerifyTokenValidator = validate(
               })
 
             try {
-              // Decoded email verify token được gửi từ client
               const decodedEmailVerifyToken = await verifyToken({
                 token: value,
                 secretOrPublicKey: envConfig.jwtSecretEmailVerifyToken
               })
 
-              // set decoded email verify token vào req
               ;(req as Request).decoded_email_verify_token = decodedEmailVerifyToken
 
               return true
@@ -451,7 +435,6 @@ export const updateMeValidator = validate(
 
             const user = await databaseService.users.findOne({ username: value })
 
-            // Check username phía user update có trùng với user khác trong DB
             if (user) {
               throw new Error(UsersMessages.UsernameAlreadyExists)
             }
@@ -502,7 +485,6 @@ export const changePasswordValidator = validate(
               })
             }
 
-            // Kiểm tra và so sánh old password truyền lên từ req vs trong DB có trùng khớp không
             const { password } = user
             const isMatch = password === hashPassword(value)
 
@@ -513,7 +495,6 @@ export const changePasswordValidator = validate(
               })
             }
 
-            // New password không được giống old password
             if (password === hashPassword((req.body as ChangePasswordReqBody).password)) {
               throw new Error(UsersMessages.OldPasswordAndNewPasswordMustBeDifferent)
             }

@@ -82,7 +82,6 @@ export const createTweetValidator = validate(
         isArray: true,
         custom: {
           options: (value: any[]) => {
-            // Mỗi phần tử trong array là string
             if (!value.every((el) => typeof el === 'string')) {
               throw new Error(TweetsMessages.HashtagsMustBeAnArrayOfString)
             }
@@ -94,7 +93,6 @@ export const createTweetValidator = validate(
         isArray: true,
         custom: {
           options: (value: any[]) => {
-            // Mỗi phần tử trong array là userId có dạng string
             if (!value.every((el) => ObjectId.isValid(el))) {
               throw new Error(TweetsMessages.MentionsMustBeAnArrayOfUserId)
             }
@@ -253,7 +251,6 @@ export const tweetIdValidator = validate(
               })
             }
 
-            // Set tweet detail into request
             ;(req as Request).tweet = tweet
             return true
           }
@@ -289,7 +286,6 @@ export const audienceValidator = async (req: Request, res: Response, next: NextF
 
     // Kiểm tra viewer xem tweet này có nằm trong Twitter Circle của author hay không?
     const isInTwitterCircle = author.twitter_circle.some((twitter_circle_id) => twitter_circle_id.equals(viewer_id))
-    // Kiểm tra viewer có phải là author hay không?
     const isAuthor = author._id.equals(viewer_id)
 
     if (!isInTwitterCircle && !isAuthor) {

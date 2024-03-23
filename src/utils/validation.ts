@@ -4,8 +4,6 @@ import { RunnableValidationChains } from 'express-validator/src/middlewares/sche
 import { HttpStatusCode } from '~/constants/enums'
 import { EntityError, ErrorWithStatus } from '~/models/Errors'
 
-// can be reused by many routes
-
 // sequential processing, stops running validations chain if the previous one fails.
 export const validate = (validations: RunnableValidationChains<ValidationChain>) => {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -16,7 +14,6 @@ export const validate = (validations: RunnableValidationChains<ValidationChain>)
       msg: error.msg
     }))
 
-    // Không có lỗi thì tiếp tục chạy next request
     if (errors.isEmpty()) {
       return next()
     }

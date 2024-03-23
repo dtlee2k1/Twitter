@@ -14,7 +14,6 @@ import { UsersMessages } from '~/constants/messages'
 import { sendForgotPasswordEmail, sendVerifyRegisterEmail } from '~/utils/email'
 import { envConfig } from '~/constants/config'
 
-// Chứa các file chứa method gọi đến database để xử lý logic nghiệp vụ
 class UserService {
   private signAccessToken({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
     return signToken({
@@ -155,7 +154,6 @@ class UserService {
       user_id: user_id.toString(),
       verify: UserVerifyStatus.Unverified
     })
-    // Insert document vào collection "users"
     await databaseService.users.insertOne(
       new User({
         ...payload,
@@ -174,7 +172,6 @@ class UserService {
 
     const { iat, exp } = await this.decodedRefreshToken(refresh_token)
 
-    // insert refresh token vào database sau khi login/register thành công
     await databaseService.refreshTokens.insertOne(
       new RefreshToken({ user_id: new ObjectId(user_id), token: refresh_token, iat, exp })
     )
@@ -211,10 +208,8 @@ class UserService {
       })
     }
 
-    // Kiểm tra email đã được đăng ký trong DB chưa
     const user = await this.checkEmailExist(userInfo.email)
 
-    // Nếu tồn tại thì cho phép login, ngược lại không tồn tại trong DB thì tiến hành đăng ký mới
     if (user) {
       const [access_token, refresh_token] = await this.signAccessAndRefreshToken({
         user_id: user._id.toString(),
@@ -223,7 +218,6 @@ class UserService {
 
       const { iat, exp } = await this.decodedRefreshToken(refresh_token)
 
-      // insert refresh token vào database sau khi login thành công
       await databaseService.refreshTokens.insertOne(
         new RefreshToken({ user_id: new ObjectId(user._id), token: refresh_token, iat, exp })
       )
@@ -235,7 +229,6 @@ class UserService {
         verify: user.verify
       }
     } else {
-      // generate random string password
       const password = (Math.random() + 1).toString(36).substring(2)
       const { access_token, refresh_token } = await this.register({
         email: userInfo.email,
@@ -257,7 +250,6 @@ class UserService {
 
     const { iat, exp } = await this.decodedRefreshToken(refresh_token)
 
-    // insert refresh token vào database sau khi login/register thành công
     await databaseService.refreshTokens.insertOne(
       new RefreshToken({ user_id: new ObjectId(user_id), token: refresh_token, iat, exp })
     )
@@ -273,7 +265,6 @@ class UserService {
 
     const { iat } = await this.decodedRefreshToken(refresh_token)
 
-    // insert refresh token vào database sau khi sign new tokens thành công
     await databaseService.refreshTokens.insertOne(
       new RefreshToken({ user_id: new ObjectId(user_id), token: refresh_token, iat, exp })
     )
@@ -311,7 +302,6 @@ class UserService {
 
     const { iat, exp } = await this.decodedRefreshToken(refresh_token)
 
-    // insert refresh token vào database sau khi verify thành công
     await databaseService.refreshTokens.insertOne(
       new RefreshToken({ user_id: new ObjectId(user_id), token: refresh_token, iat, exp })
     )
@@ -325,10 +315,8 @@ class UserService {
   async resendVerifyEmail(user_id: string, email: string) {
     const email_verify_token = await this.signEmailVerifyToken({ user_id, verify: UserVerifyStatus.Unverified })
 
-    // Thực hiện resend email tới user
     console.log('Resend verify email token: ', email_verify_token)
 
-    // cập nhật lại value email_verify_token trong document users
     await databaseService.users.updateOne(
       { _id: new ObjectId(user_id) },
       {
@@ -349,13 +337,11 @@ class UserService {
   async forgotPassword({ user_id, verify, email }: { user_id: string; verify: UserVerifyStatus; email: string }) {
     const forgot_password_token = await this.signForgotPasswordToken({ user_id, verify })
 
-    // Cập nhật forgot password token trong document users
     await databaseService.users.updateOne(
       { _id: new ObjectId(user_id) },
       { $set: { forgot_password_token, updated_at: new Date() } }
     )
 
-    // Gửi email kèm đường link đến email user: https://twitter.com/forgot_password?token=token
     console.log('Resend forgot password token: ', forgot_password_token)
 
     sendForgotPasswordEmail(email, forgot_password_token)
@@ -476,14 +462,12 @@ class UserService {
       followed_user_id: new ObjectId(followed_user_id)
     })
 
-    // Không tìm thấy follower => Chưa followed
     if (follower === null) {
       return {
         message: UsersMessages.AlreadyUnfollowed
       }
     }
 
-    // TÌm thấy follower => Đã follow user này => Thực hiện xóa document này
     await databaseService.followers.deleteOne({
       user_id: new ObjectId(user_id),
       followed_user_id: new ObjectId(followed_user_id)

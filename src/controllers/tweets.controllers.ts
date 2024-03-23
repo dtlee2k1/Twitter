@@ -11,7 +11,6 @@ export const createTweetController = async (req: Request<ParamsDictionary, any, 
 
   const result = await tweetService.createTweet(req.body, user_id)
 
-  // Trả về phản hồi cho client
   res.json(result)
 }
 
@@ -28,7 +27,6 @@ export const getTweetDetailController = async (req: Request<TweetParams>, res: R
     updated_at: result.updated_at
   }
 
-  // Trả về phản hồi cho client
   res.json({
     message: TweetsMessages.GetTweetSuccess,
     result: tweet
@@ -50,7 +48,6 @@ export const getTweetChildrenController = async (req: Request<TweetParams, any, 
     page
   })
 
-  // Trả về phản hồi cho client
   res.json({
     message: TweetsMessages.GetTweetChildrenSuccess,
     result: {
@@ -73,7 +70,6 @@ export const getNewFeedsController = async (
 
   const { tweets, tweetsCount } = await tweetService.getNewFeeds({ user_id, limit, page })
 
-  // Trả về phản hồi cho client
   res.json({
     message: TweetsMessages.GetNewFeedsSuccess,
     result: {

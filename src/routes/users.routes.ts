@@ -38,8 +38,6 @@ import { wrapRequestHandler } from '~/utils/handlers'
 
 const usersRouter = Router()
 
-// Định nghĩa route POST
-
 /**
  *  Description: Login a user
  *  Path: '/login'
